@@ -1,0 +1,44 @@
+[
+  {
+    "category": "GIN",
+    "product_name": "CARNIVALGIN",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "GIN",
+    "product_name": "CARNIVALGIN",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "GIN",
+    "product_name": "CARNIVALGIN",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "GIN",
+    "product_name": "MAJIC GIN",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "GIN",
+    "product_name": "TEQUILA",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "GIN",
+    "product_name": "TEQUILA",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "GIN",
+    "product_name": "TEQUILA",
+    "size": "60",
+    "size_ml": 60
+  }
+]

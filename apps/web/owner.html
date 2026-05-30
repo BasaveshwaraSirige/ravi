@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Owner View • SR Groups</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">Owner View</div>
+            <div class="brand-sub">Sales • Employees • All Business Units</div>
+          </div>
+        </div>
+        <div class="row">
+          <a class="btn small" href="/dashboard.html">Back</a>
+          <input id="date" type="date" style="width:160px" />
+          <button id="logout" class="btn danger small">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container" style="padding: 22px 0 50px">
+      <div class="grid cols-1">
+        <div class="card"><div class="card-inner kpi">
+          <div class="label">Combined • Daily Sales</div>
+          <div id="cSales" class="value">—</div>
+          <div class="sub">All business units</div>
+        </div></div>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div id="ownerEmpCards" class="grid cols-3"></div>
+    </main>
+
+    <div id="toast" class="toast">
+      <div class="t">Title</div>
+      <div class="m">Message</div>
+    </div>
+
+    <script type="module">
+      import { api, money, requireAuth, todayIso, toast } from "/assets/app.js";
+
+      const me = await requireAuth();
+      if (!me || me.role !== "OWNER") {
+        toast("Forbidden", "Owner only");
+        window.location.href = "/dashboard.html";
+      }
+
+      const dateEl = document.getElementById("date");
+      dateEl.value = todayIso();
+
+      async function load() {
+        const date = dateEl.value || todayIso();
+        const dash = await api(`/api/dashboard/summary?date=${encodeURIComponent(date)}`);
+        document.getElementById("cSales").textContent = money(dash.combined.salesTotal);
+
+        const shopsRes = await api("/api/shops");
+        const shops = Array.isArray(shopsRes?.shops) ? shopsRes.shops : [];
+        const bundles = await Promise.all(
+          shops.map(async (shop) => {
+            const empRes = await api(`/api/shops/${shop.id}/employees`);
+            return { shop, employees: Array.isArray(empRes?.employees) ? empRes.employees : [] };
+          })
+        );
+        document.getElementById("ownerEmpCards").innerHTML = bundles.map(({ shop, employees }) => `
+          <div class="card"><div class="card-inner">
+            <div style="font-weight:900;margin-bottom:10px">Employees • ${escapeHtml(shop.name)}</div>
+            <div style="overflow:auto">
+              <table>
+                <thead><tr><th>Name</th><th>Age</th><th>Experience</th></tr></thead>
+                <tbody>
+                  ${employees.length === 0
+                    ? `<tr><td colspan="3" style="color:var(--muted)">No employees</td></tr>`
+                    : employees.map((e) => `<tr><td>${escapeHtml(e.name)}</td><td>${e.age ?? ""}</td><td>${escapeHtml(e.experience ?? "")}</td></tr>`).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div></div>
+        `).join("");
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>\"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+      }
+
+      dateEl.addEventListener("change", () => load().catch((e) => toast("Error", e.message)));
+      load().catch((e) => toast("Error", e.message));
+
+      document.getElementById("logout").addEventListener("click", async () => {
+        await api("/api/auth/logout", { method: "POST", body: "{}" }).catch(() => {});
+        window.location.href = "/index.html";
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login • SR Groups</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">SR Groups – Liquor & Bar Management System</div>
+            <div class="brand-sub">Secure login</div>
+          </div>
+        </div>
+        <a class="btn small" href="/">Home</a>
+      </div>
+    </div>
+
+    <main class="container login-shell">
+      <div class="auth-grid">
+        <div class="card auth-card"><div class="card-inner">
+          <div class="pill">Welcome</div>
+          <h2 style="margin: 10px 0 6px">Login</h2>
+          <p style="margin:0;color:var(--muted)">Use your username and password to access the dashboard.</p>
+          <div style="height:14px"></div>
+          <form id="form" class="grid cols-1" autocomplete="on">
+            <div class="field">
+              <label for="username">Username</label>
+              <input id="username" name="username" required />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" required />
+            </div>
+            <button class="btn primary" type="submit">Login</button>
+            <div style="color:var(--muted);font-size:12px">
+              Tip: If this is the first run, set `ADMIN_PASSWORD` in `.env` and login as `owner`.
+            </div>
+          </form>
+        </div></div>
+
+        <div class="card auth-side"><div class="card-inner">
+          <div class="pill" style="color:var(--text);border-color:rgba(15,118,110,.32);background:rgba(15,118,110,.10)">Features</div>
+          <h3 style="margin:10px 0 8px">Designed for mobile → desktop</h3>
+          <ul style="margin:0;padding-left:18px;color:var(--muted)">
+            <li>Fast billing (barcode keyboard scanner supported)</li>
+            <li>Stock tracking + low stock SMS alerts</li>
+            <li>Daily sales dashboard for all business units</li>
+            <li>Daily PDF stock + sales report sent by SMS link</li>
+          </ul>
+          <div style="height:12px"></div>
+          <div style="font-weight:800;font-size:13px">Default unit logins</div>
+          <div style="margin-top:6px;color:var(--muted);font-size:13px;line-height:1.5">
+            Ravi Liquor Shop: <code>ravi</code><br />
+            Aishwarya Bar: <code>aishwarya</code><br />
+            S R Residency (Lodging): <code>srresidency</code>
+          </div>
+          <div style="margin-top:6px;color:var(--muted);font-size:12px">
+            Passwords use <code>SHOP1_PASSWORD</code>, <code>SHOP2_PASSWORD</code>, and <code>SHOP3_PASSWORD</code> from <code>.env</code>.
+          </div>
+        </div></div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast">
+      <div class="t">Title</div>
+      <div class="m">Message</div>
+    </div>
+
+    <script type="module">
+      import { api, toast } from "/assets/app.js";
+
+      const loginQs = new URLSearchParams(window.location.search);
+      const prefillUsername = String(loginQs.get("username") || "").trim();
+      if (prefillUsername) {
+        document.getElementById("username").value = prefillUsername;
+        document.getElementById("password").focus();
+      }
+
+      const form = document.getElementById("form");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        try {
+          const res = await api("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ username, password })
+          });
+          const shopId = res?.user?.shopId;
+          if (Number.isFinite(Number(shopId))) window.location.href = `/shop.html?shopId=${encodeURIComponent(shopId)}`;
+          else window.location.href = "/dashboard.html";
+        } catch (err) {
+          toast("Login failed", err.message || "Please check credentials");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shop • SR Groups</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true"></div>
+		          <div>
+		            <div id="shopTitle" class="brand-title">Shop</div>
+		            <div class="brand-sub">Billing • Stock • BILL OF INVOICE (KSBCL) • Sales • Employees • Expenses • Reports</div>
+		          </div>
+			        </div>
+			        <div class="row">
+	          <a class="btn small" href="/dashboard.html">Dashboard</a>
+	          <button id="navEmployees" class="btn small" type="button">Employees</button>
+	          <button id="logout" class="btn danger small">Logout</button>
+	        </div>
+	      </div>
+	    </div>
+
+    <main class="container" style="padding: 18px 0 50px">
+			      <div class="tabs" id="tabs">
+			        <div class="tab active" data-tab="billing">Billing</div>
+			        <div class="tab" data-tab="stock">Stock</div>
+			        <div class="tab" data-tab="boi">BILL OF INVOICE (KSBCL)</div>
+			        <div class="tab" data-tab="sales">Sales</div>
+			        <div class="tab" data-tab="employees">Employees</div>
+			        <div class="tab" data-tab="expenses">Expenses</div>
+			        <div class="tab" data-tab="reports">Reports</div>
+			      </div>
+
+      <div style="height:14px"></div>
+
+      <!-- Billing -->
+      <section class="card billing-pane" data-pane="billing">
+        <div class="card-inner billing-inner">
+	          <div class="billing-head">
+	            <div>
+	              <div class="pill" style="color:var(--text);border-color:rgba(20,83,45,.32);background:rgba(20,83,45,.10)">Billing</div>
+	              <h2 style="margin:10px 0 6px">Create Bill</h2>
+	              <p style="margin:0;color:var(--muted)">Search product and add to bill quickly.</p>
+	            </div>
+	            <div class="billing-status">
+	              <div class="billing-status-title">Fast Counter Mode</div>
+	              <div class="billing-status-text">Use smart search, adjust qty, and bill in one tap.</div>
+	            </div>
+	          </div>
+
+	          <div class="billing-input-grid">
+	            <div class="field">
+	              <label>Search Product</label>
+	              <input id="searchInput" placeholder="Type product name and press Enter..." />
+	            </div>
+	          </div>
+
+          <div id="searchSuggestBox" class="billing-suggest" style="display:none">
+            <div style="font-weight:900; font-size:12px; color:var(--muted); margin-bottom:8px">Matching products</div>
+            <div id="searchSuggestItems" class="billing-suggest-items"></div>
+          </div>
+
+          <div class="billing-layout">
+            <div class="card billing-table-card">
+              <div class="card-inner">
+                <div class="billing-block-title">Bill Items</div>
+                <div class="billing-table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th style="width:90px">Qty</th>
+                        <th style="width:120px">Price</th>
+                        <th style="width:130px">Amount</th>
+                        <th style="width:70px"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="billItems"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="billing-side">
+              <div class="card">
+                <div class="card-inner kpi">
+                  <div class="label">Subtotal</div>
+                  <div id="subTotal" class="value">₹0.00</div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-inner kpi">
+                  <div class="label">Grand Total</div>
+                  <div id="grandTotal" class="value">₹0.00</div>
+                </div>
+              </div>
+
+              <div class="card billing-actions-card">
+                <div class="card-inner">
+                  <div class="field">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod">
+                      <option value="CASH">CASH</option>
+                      <option value="UPI">UPI</option>
+                      <option value="CARD">CARD</option>
+                    </select>
+                  </div>
+                  <div style="height:10px"></div>
+                  <div class="billing-actions-row">
+                    <button class="btn primary" id="createBill">Create Bill</button>
+                    <button class="btn" id="printBill">Print</button>
+                    <button class="btn" id="clearBill">Clear</button>
+                  </div>
+	                  <div class="billing-tip">Tip: Type product name, then press Enter to add.</div>
+	                </div>
+	              </div>
+	            </div>
+	          </div>
+        </div>
+      </section>
+
+      <!-- Stock -->
+	      <section class="card" data-pane="stock" style="display:none">
+	        <div class="card-inner">
+	          <div class="grid cols-2">
+	            <div>
+	              <div class="pill" style="color:var(--text);border-color:rgba(15,118,110,.32);background:rgba(15,118,110,.10)">Stock</div>
+	              <h2 style="margin:10px 0 6px">Products</h2>
+	              <p style="margin:0;color:var(--muted)">Add products, update prices, and manage stock quantity.</p>
+	            </div>
+	            <div class="row" style="justify-content:flex-end">
+		              <select id="productCategoryFilter" style="width:220px">
+		                <option value="ALL">All Categories</option>
+		                <option value="WHISKEY">Whiskey</option>
+		                <option value="BRANDY">Brandy</option>
+		                <option value="RUM">Rum</option>
+		                <option value="VODKA">Vodka</option>
+			                <option value="BEER">Beer</option>
+			                <option value="WINE">Wine</option>
+			                <option value="CARBONATED_WINE">Carbonated Wine</option>
+                        <option value="OTHERS">Others</option>
+			              </select>
+	              <input id="productSearch" placeholder="Search products..." style="width:min(380px,100%)" />
+	              <button class="btn primary small" id="openProductForm">Add / Update Product</button>
+	            </div>
+	          </div>
+
+	          <div style="height:12px"></div>
+		          <div style="overflow:auto">
+		            <table>
+		              <thead>
+	                <tr>
+	                  <th style="width:70px">S.No</th>
+	                  <th>Name</th>
+	                  <th>Size</th>
+	                  <th>Qty</th>
+	                  <th>Category</th>
+	                </tr>
+		              </thead>
+		              <tbody id="productsTable"></tbody>
+		            </table>
+		          </div>
+
+	          <div id="productFormModal" class="modal-overlay" aria-hidden="true">
+	            <div class="card modal-card" role="dialog" aria-modal="true" aria-labelledby="productFormTitle">
+	              <div class="card-inner">
+	                <div class="row" style="justify-content:space-between; align-items:flex-end">
+	                  <div>
+	                    <div id="productFormTitle" style="font-weight:900;margin-bottom:4px">Add / Update Product</div>
+	                    <div id="editHint" style="color:var(--muted);font-size:12px">Click a product row to load it for editing.</div>
+	                  </div>
+	                  <div class="row">
+	                    <button class="btn small" id="closeProductForm">Close</button>
+	                  </div>
+	                </div>
+
+	                <div style="height:10px"></div>
+
+		                <div class="field-row">
+		                  <div class="field"><label>Name</label><input id="pName" /></div>
+		                  <div class="field"><label>Barcode</label><input id="pBarcode" /></div>
+	                  <div class="field">
+	                    <label>Category</label>
+	                    <select id="pCategory">
+	                      <option value="WHISKEY">Whiskey</option>
+	                      <option value="BRANDY">Brandy</option>
+	                      <option value="RUM">Rum</option>
+	                      <option value="VODKA">Vodka</option>
+	                      <option value="BEER">Beer</option>
+	                      <option value="GIN">Gin</option>
+	                      <option value="WINE">Wine</option>
+	                      <option value="CARBONATED_WINE">Carbonated Wine</option>
+	                      <option value="OTHERS" selected>Others</option>
+	                    </select>
+	                  </div>
+	                  <div class="field">
+	                    <label>Size</label>
+	                    <select id="pSize"></select>
+	                  </div>
+	                  <div class="field"><label>Bottles / Case</label><input id="pBpc" type="number" step="1" value="12" /></div>
+	                  <div class="field"><label>MRP (Price)</label><input id="pSale" type="number" step="0.01" value="0" /></div>
+	                  <div class="field"><label>Min Qty</label><input id="pMin" type="number" step="0.01" value="0" /></div>
+		                  <div class="field"><label>Current Qty</label><input id="pQty" type="number" step="0.01" value="0" /></div>
+		                  <div class="field"><label>&nbsp;</label>
+		                    <div class="row" style="gap:8px;flex-wrap:wrap">
+		                      <button class="btn primary" id="saveProduct">Save Product</button>
+		                      <button class="btn" id="saveOtherItem">OTHERS ITEMS</button>
+                          <button class="btn" id="openOtherItemsFullPage" type="button">FULL PAGE</button>
+		                    </div>
+		                  </div>
+		                </div>
+
+                    <div style="height:12px"></div>
+
+                    <div class="card">
+                      <div class="card-inner">
+                        <div class="row" style="justify-content:space-between; align-items:flex-end; gap:8px; flex-wrap:wrap">
+                          <div>
+                            <div style="font-weight:900; margin-bottom:4px">OTHERS ITEMS</div>
+                            <div style="color:var(--muted);font-size:12px">Non-stock items with only name and MRP.</div>
+                          </div>
+                          <div class="row" style="gap:8px; flex-wrap:wrap">
+                            <input id="otherItemsSearch" placeholder="Search others items..." style="width:min(320px,100%)" />
+                            <button class="btn small" id="otherItemsPrev" type="button">Prev</button>
+                            <button class="btn small" id="otherItemsNext" type="button">Next</button>
+                          </div>
+                        </div>
+                        <div id="otherItemsMeta" style="margin:8px 0; color:var(--muted); font-size:12px">Loading...</div>
+                        <div style="max-height:260px; overflow:auto">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th style="width:70px">S.No</th>
+                                <th>Item Name</th>
+                                <th style="width:130px">MRP</th>
+                                <th style="width:90px"></th>
+                              </tr>
+                            </thead>
+                            <tbody id="otherItemsTable">
+                              <tr><td colspan="4" style="color:var(--muted)">Loading...</td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+	                    </div>
+		              </div>
+		            </div>
+		          </div>
+
+            <div id="otherItemsFullModal" class="modal-overlay modal-overlay-top" aria-hidden="true">
+              <div class="card modal-card modal-card-fullscreen" role="dialog" aria-modal="true" aria-labelledby="otherItemsFullTitle">
+                <div class="card-inner">
+                  <div class="row" style="justify-content:space-between; align-items:flex-end; gap:8px; flex-wrap:wrap">
+                    <div>
+                      <div id="otherItemsFullTitle" style="font-weight:900; margin-bottom:4px">OTHERS ITEMS - FULL PAGE</div>
+                      <div style="color:var(--muted);font-size:12px">All others items in full screen view.</div>
+                    </div>
+                    <button class="btn small" id="closeOtherItemsFullModal" type="button">Close</button>
+                  </div>
+                  <div style="height:10px"></div>
+                  <div class="row" style="justify-content:space-between; align-items:flex-end; gap:8px; flex-wrap:wrap">
+                    <input id="otherItemsFullSearch" placeholder="Search others items..." style="width:min(420px,100%)" />
+                    <div class="row" style="gap:8px; flex-wrap:wrap">
+                      <button class="btn small" id="otherItemsFullPrev" type="button">Prev</button>
+                      <button class="btn small" id="otherItemsFullNext" type="button">Next</button>
+                    </div>
+                  </div>
+                  <div id="otherItemsFullMeta" style="margin:8px 0; color:var(--muted); font-size:12px">Loading...</div>
+                  <div class="other-items-full-body">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th style="width:80px">S.No</th>
+                          <th>Item Name</th>
+                          <th style="width:130px">MRP</th>
+                          <th style="width:120px"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="otherItemsFullTable">
+                        <tr><td colspan="4" style="color:var(--muted)">Loading...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+		        </div>
+		      </section>
+
+	      <!-- BILL OF INVOICE (KSBCL) -->
+		      <section class="card boi-pane" data-pane="boi" style="display:none">
+		        <div class="card-inner boi-inner">
+		          <div class="boi-head">
+		            <div>
+		              <div class="pill" style="color:var(--text);border-color:rgba(183,121,31,.34);background:rgba(183,121,31,.11)">Incoming Stock</div>
+		              <h2 style="margin:10px 0 6px">BILL OF INVOICE (KSBCL)</h2>
+		              <div class="boi-subhead">KSBCL liquor depot: R.S.no.149,Khatha 355,challakere town 577 522</div>
+		            </div>
+		          </div>
+
+		          <div class="card boi-form-card"><div class="card-inner">
+		            <div class="boi-block-title">Invoice Entry</div>
+		            <div class="boi-date-row">
+		              <div class="field"><label>Date</label><input id="boiDate" type="date" /></div>
+		              <div class="field"><label>&nbsp;</label><button class="btn" id="boiDateContinue">Continue</button></div>
+		            </div>
+
+		            <div id="boiRest" class="boi-rest" style="display:none">
+			              <div class="boi-form-grid">
+			                <div class="field"><label>Invoice No</label><input id="boiInvoiceNo" placeholder="Invoice number" /></div>
+			                <div class="field"><label>Permit No</label><input id="boiPermitNo" placeholder="Permit number" /></div>
+			                <div class="field"><label>Vehicle Reg No</label><input id="boiVehicleReg" placeholder="KA-16 D 1541" /></div>
+		                <div class="field boi-product-field">
+		                  <label>Product Search</label>
+		                  <input id="boiProductSearch" placeholder="Type product name..." autocomplete="off" />
+		                  <select id="boiProduct" style="display:none"></select>
+		                  <div id="boiProductSuggest" class="boi-product-suggest" style="display:none">
+		                    <div id="boiProductSuggestItems" class="boi-product-suggest-items"></div>
+		                  </div>
+		                  <div id="boiProductSelected" class="boi-product-selected">No product selected</div>
+		                </div>
+		                <div class="field"><label>Cases</label><input id="boiCases" type="number" step="1" value="0" /></div>
+			                <div class="field"><label>Bottles</label><input id="boiBottles" type="number" step="1" value="0" /></div>
+			                <div class="field"><label>&nbsp;</label><button class="btn primary" id="boiSubmit">BILL OF INVOICE</button></div>
+			              </div>
+			              <div id="boiHeaderHint" class="boi-subhead" style="margin-top:6px">Enter Invoice No, Permit No, Vehicle Reg No once for the selected date.</div>
+			              <div class="boi-note">Note: Stock quantity is calculated as (Cases × Bottles/Case) + Bottles.</div>
+			            </div>
+			          </div></div>
+
+		          <div class="card boi-incoming-card"><div class="card-inner">
+		            <div class="row" style="justify-content:space-between; align-items:flex-end">
+		              <div>
+		                <div id="incomingTitle" class="boi-block-title" style="margin-bottom:4px">Items arrived today</div>
+		                <div id="incomingMeta" class="boi-subhead">INVOICE: - • PERMIT: - • VEHICLE: - • SOURCE: -</div>
+		              </div>
+		            </div>
+		            <div class="boi-table-wrap">
+		              <table>
+		                <thead>
+		                  <tr>
+		                    <th>Product</th>
+		                    <th>Qty (Bottles)</th>
+		                    <th>Cases</th>
+		                    <th>Bottles</th>
+		                  </tr>
+		                </thead>
+		                <tbody id="incomingTable"></tbody>
+		              </table>
+		            </div>
+		          </div></div>
+		        </div>
+		      </section>
+
+      <!-- Sales -->
+      <section class="card" data-pane="sales" style="display:none">
+        <div class="card-inner">
+          <div class="grid cols-2">
+            <div>
+              <div class="pill" style="color:var(--text);border-color:rgba(20,83,45,.32);background:rgba(20,83,45,.10)">Sales</div>
+              <h2 style="margin:10px 0 6px">Sales Reports</h2>
+              <p style="margin:0;color:var(--muted)">Daily / date‑wise sales report.</p>
+            </div>
+            <div class="row" style="justify-content:flex-end">
+              <input id="salesFrom" type="date" style="width:160px" />
+              <input id="salesTo" type="date" style="width:160px" />
+              <button class="btn small" id="loadSales">Load</button>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div style="overflow:auto">
+            <table>
+              <thead><tr><th>Bill No</th><th>Total</th><th>Payment</th><th>Created</th><th style="width:90px"></th></tr></thead>
+              <tbody id="salesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Employees -->
+      <section class="card" data-pane="employees" style="display:none">
+        <div class="card-inner">
+          <div class="grid cols-2">
+            <div>
+              <div class="pill" style="color:var(--text);border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.12)">Employees</div>
+              <h2 style="margin:10px 0 6px">Employee Management</h2>
+              <p style="margin:0;color:var(--muted)">Add employees and view list (per shop).</p>
+            </div>
+            <div></div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div class="card"><div class="card-inner">
+            <div style="font-weight:900;margin-bottom:10px">Add Employee</div>
+            <div class="field-row">
+              <div class="field"><label>Name</label><input id="eName" /></div>
+              <div class="field"><label>Age</label><input id="eAge" type="number" /></div>
+              <div class="field"><label>Address</label><input id="eAddress" /></div>
+              <div class="field"><label>ID Proof</label><input id="eIdProof" /></div>
+              <div class="field"><label>Experience</label><input id="eExp" /></div>
+              <div class="field"><label>&nbsp;</label><button class="btn primary" id="addEmp">Add</button></div>
+            </div>
+          </div></div>
+
+          <div style="height:12px"></div>
+          <div style="overflow:auto">
+            <table>
+              <thead><tr><th>Name</th><th>Age</th><th>Address</th><th>ID Proof</th><th>Experience</th></tr></thead>
+              <tbody id="empTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Expenses -->
+      <section class="card" data-pane="expenses" style="display:none">
+        <div class="card-inner">
+          <div class="grid cols-2">
+            <div>
+              <div class="pill" style="color:var(--text);border-color:rgba(15,118,110,.32);background:rgba(15,118,110,.10)">Expenses</div>
+              <h2 style="margin:10px 0 6px">Daily Expenses</h2>
+              <p style="margin:0;color:var(--muted)">Record expenses for daily tracking.</p>
+            </div>
+            <div class="row" style="justify-content:flex-end">
+              <input id="expFrom" type="date" style="width:160px" />
+              <input id="expTo" type="date" style="width:160px" />
+              <button class="btn small" id="loadExp">Load</button>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div class="card"><div class="card-inner">
+            <div style="font-weight:900;margin-bottom:10px">Add Expense</div>
+            <div class="field-row">
+              <div class="field"><label>Date</label><input id="expDate" type="date" /></div>
+              <div class="field"><label>Amount</label><input id="expAmount" type="number" step="0.01" /></div>
+              <div class="field"><label>Category</label><input id="expCat" placeholder="Rent / Salary / ..." /></div>
+              <div class="field"><label>Note</label><input id="expNote" placeholder="Optional" /></div>
+              <div class="field"><label>&nbsp;</label><button class="btn primary" id="addExp">Add Expense</button></div>
+            </div>
+          </div></div>
+
+          <div style="height:12px"></div>
+          <div style="overflow:auto">
+            <table>
+              <thead><tr><th>Date</th><th>Amount</th><th>Category</th><th>Note</th></tr></thead>
+              <tbody id="expTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reports -->
+      <section class="card" data-pane="reports" style="display:none">
+        <div class="card-inner">
+          <div class="grid cols-2">
+            <div>
+              <div class="pill" style="color:var(--text);border-color:rgba(183,121,31,.34);background:rgba(183,121,31,.11)">Reports</div>
+              <h2 style="margin:10px 0 6px">Daily PDF + SMS</h2>
+              <p style="margin:0;color:var(--muted)">Generate daily stock + sales PDF and send SMS link to configured numbers.</p>
+            </div>
+            <div class="row" style="justify-content:flex-end">
+              <input id="repDate" type="date" style="width:160px" />
+              <button class="btn primary" id="genRep">Generate & Send</button>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div style="overflow:auto">
+            <table>
+              <thead><tr><th>Date</th><th>File</th><th>Created</th><th></th></tr></thead>
+              <tbody id="repTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast">
+      <div class="t">Title</div>
+      <div class="m">Message</div>
+    </div>
+
+    <button id="openShortcutHelp" class="btn small shortcut-fab" type="button">SHORTCUT</button>
+
+    <div id="shortcutHelpModal" class="modal-overlay modal-overlay-top" aria-hidden="true">
+      <div class="card modal-card shortcut-modal-card" role="dialog" aria-modal="true" aria-labelledby="shortcutHelpTitle">
+        <div class="card-inner">
+          <div class="row" style="justify-content:space-between; align-items:flex-end; gap:8px; flex-wrap:wrap">
+            <div>
+              <div id="shortcutHelpTitle" style="font-weight:900; margin-bottom:4px">Shortcut Keys</div>
+              <div style="color:var(--muted);font-size:12px">Use these keys to trigger actions quickly.</div>
+            </div>
+            <button class="btn small" id="closeShortcutHelp" type="button">Close</button>
+          </div>
+          <div style="height:10px"></div>
+          <div class="shortcut-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:140px">Shortcut</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="shortcutHelpTable">
+                <tr><td colspan="2" style="color:var(--muted)">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { api, money, requireAuth, todayIso, toast, $, $$ } from "/assets/app.js";
+
+      await requireAuth();
+
+      const qs = new URLSearchParams(location.search);
+      const shopId = Number(qs.get("shopId") || "1");
+      const shops = await api("/api/shops");
+      const shopList = shops.shops || [];
+      const shop = shopList.find((s) => s.id === shopId);
+      if (!shop && shopList.length > 0) {
+        window.location.href = `/shop.html?shopId=${encodeURIComponent(shopList[0].id)}`;
+      }
+      const effectiveShop = shop || { id: shopId, name: `Shop ${shopId}`, address: "" };
+      document.getElementById("shopTitle").textContent = effectiveShop.name;
+      document.title = `${effectiveShop.name} • SR Groups`;
+
+	      // Tabs
+	      const tabsEl = document.getElementById("tabs");
+	      const panes = $$("[data-pane]");
+	
+		      function activateTab(name) {
+		        const n = String(name || "").trim();
+		        $$(".tab", tabsEl).forEach((t) => t.classList.toggle("active", t.dataset.tab === n));
+		        panes.forEach((p) => (p.style.display = p.dataset.pane === n ? "" : "none"));
+            history.replaceState(null, "", `#${encodeURIComponent(n)}`);
+		        if (n === "billing") document.getElementById("searchInput")?.focus();
+		      }
+	
+	      tabsEl.addEventListener("click", (e) => {
+	        const tab = e.target.closest(".tab");
+	        if (!tab) return;
+	        activateTab(tab.dataset.tab);
+	      });
+	
+	      document.getElementById("navEmployees")?.addEventListener("click", () => activateTab("employees"));
+        const initialTab = decodeURIComponent(location.hash.replace(/^#/, ""));
+        if (initialTab && document.querySelector(`[data-pane="${CSS.escape(initialTab)}"]`)) {
+          activateTab(initialTab);
+        }
+
+	      const BUTTON_SHORTCUTS = [
+	        ["navEmployees", "F1"],
+	        ["logout", "F2"],
+	        ["createBill", "F3"],
+	        ["printBill", "F4"],
+	        ["clearBill", "F5"],
+	        ["openProductForm", "F6"],
+	        ["closeProductForm", "F7"],
+	        ["saveProduct", "F8"],
+	        ["saveOtherItem", "F9"],
+	        ["openOtherItemsFullPage", "F10"],
+	        ["otherItemsPrev", "F11"],
+	        ["otherItemsNext", "F12"],
+	        ["closeOtherItemsFullModal", "Shift+1"],
+	        ["otherItemsFullPrev", "Shift+2"],
+	        ["otherItemsFullNext", "Shift+3"],
+	        ["boiDateContinue", "Shift+4"],
+	        ["boiSubmit", "Shift+5"],
+	        ["loadSales", "Shift+6"],
+	        ["addEmp", "Shift+7"],
+	        ["loadExp", "Shift+8"],
+	        ["addExp", "Shift+9"],
+	        ["genRep", "Shift+0"]
+	      ];
+	      const shortcutButtonMap = new Map();
+	      const openShortcutHelpBtn = document.getElementById("openShortcutHelp");
+	      const closeShortcutHelpBtn = document.getElementById("closeShortcutHelp");
+	      const shortcutHelpModalEl = document.getElementById("shortcutHelpModal");
+	      const shortcutHelpTableEl = document.getElementById("shortcutHelpTable");
+
+	      function isTypingTarget(target) {
+	        if (!(target instanceof Element)) return false;
+	        if (target.isContentEditable) return true;
+	        return !!target.closest("input, textarea, select, [contenteditable='true']");
+	      }
+
+	      function isVisibleShortcutButton(btn) {
+	        if (!(btn instanceof HTMLButtonElement)) return false;
+	        if (btn.disabled || !document.body.contains(btn)) return false;
+	        let node = btn;
+	        while (node && node !== document.body) {
+	          if (node.getAttribute("aria-hidden") === "true") return false;
+	          const style = window.getComputedStyle(node);
+	          if (style.display === "none" || style.visibility === "hidden") return false;
+	          node = node.parentElement;
+	        }
+	        const rect = btn.getBoundingClientRect();
+	        return rect.width > 0 && rect.height > 0;
+	      }
+
+	      function eventShortcutKey(e) {
+	        if (e.metaKey || e.ctrlKey) return "";
+	        const key = String(e.key || "").toUpperCase();
+	        if (!e.altKey && !e.shiftKey && /^F([1-9]|1[0-2])$/.test(key)) return key;
+	        const digitMatch = /^Digit([0-9])$/.exec(String(e.code || ""));
+	        if (!digitMatch) return "";
+	        if (e.shiftKey && !e.altKey) return `Shift+${digitMatch[1]}`;
+	        return "";
+	      }
+
+	      function shortcutActionLabel(btn, fallbackId) {
+	        if (!(btn instanceof HTMLButtonElement)) return String(fallbackId || "").trim();
+	        const label = String(btn.textContent || "")
+	          .replace(/\s+/g, " ")
+	          .trim();
+	        return label || String(fallbackId || "").trim();
+	      }
+
+	      function renderShortcutHelpTable() {
+	        if (!shortcutHelpTableEl) return;
+	        const rows = BUTTON_SHORTCUTS
+	          .map(([id, shortcut]) => {
+	            const btn = document.getElementById(id);
+	            const action = escapeHtml(shortcutActionLabel(btn, id));
+	            return `
+	              <tr>
+	                <td>${escapeHtml(shortcut)}</td>
+	                <td>${action}</td>
+	              </tr>
+	            `;
+	          })
+	          .join("");
+	        shortcutHelpTableEl.innerHTML = rows || `<tr><td colspan="2" style="color:var(--muted)">No shortcuts configured.</td></tr>`;
+	      }
+
+	      function openShortcutHelpModal() {
+	        if (!shortcutHelpModalEl) return;
+	        renderShortcutHelpTable();
+	        shortcutHelpModalEl.classList.add("show");
+	        shortcutHelpModalEl.setAttribute("aria-hidden", "false");
+	      }
+
+	      function closeShortcutHelpModal() {
+	        if (!shortcutHelpModalEl) return;
+	        shortcutHelpModalEl.classList.remove("show");
+	        shortcutHelpModalEl.setAttribute("aria-hidden", "true");
+	      }
+
+	      function initButtonShortcuts() {
+	        BUTTON_SHORTCUTS.forEach(([id, shortcut]) => {
+	          const btn = document.getElementById(id);
+	          if (!(btn instanceof HTMLButtonElement)) return;
+	          shortcutButtonMap.set(shortcut, btn);
+	          btn.setAttribute("aria-keyshortcuts", shortcut);
+	        });
+	      }
+
+	      initButtonShortcuts();
+	      openShortcutHelpBtn?.addEventListener("click", () => openShortcutHelpModal());
+	      closeShortcutHelpBtn?.addEventListener("click", () => closeShortcutHelpModal());
+	      shortcutHelpModalEl?.addEventListener("click", (e) => {
+	        if (e.target === shortcutHelpModalEl) closeShortcutHelpModal();
+	      });
+
+	      document.addEventListener("keydown", (e) => {
+	        if (e.repeat) return;
+	        const shortcut = eventShortcutKey(e);
+	        if (!shortcut) return;
+	        if (isTypingTarget(e.target) && !shortcut.startsWith("F")) return;
+	        const btn = shortcutButtonMap.get(shortcut);
+	        if (!isVisibleShortcutButton(btn)) return;
+	        e.preventDefault();
+	        btn.click();
+	      });
+
+      // Logout
+      document.getElementById("logout").addEventListener("click", async () => {
+        await api("/api/auth/logout", { method: "POST", body: "{}" }).catch(() => {});
+        location.href = "/index.html";
+      });
+
+	      // Billing state
+	      let bill = [];
+	      let lastBillId = null;
+
+      function recalc() {
+        let subtotal = 0, total = 0;
+        for (const it of bill) {
+          it.total = it.qty * it.sale_price;
+          subtotal += it.total;
+          total += it.total;
+        }
+        document.getElementById("subTotal").textContent = money(subtotal);
+        document.getElementById("grandTotal").textContent = money(total);
+      }
+
+	      function renderBill() {
+	        const tbody = document.getElementById("billItems");
+	        tbody.innerHTML = bill.map((it, idx) => {
+	          const parts = [];
+	          const cat = categoryLabel(it.category);
+	          if (cat) parts.push(cat);
+	          if (it.size) parts.push(String(it.size));
+	          const sub = parts.join(" • ");
+	          const qtyView = Math.max(1, Math.min(9999, Math.trunc(Number(it.qty || 0)) || 1));
+	          return `
+	            <tr>
+	              <td>
+	                <div>${escapeHtml(it.name)}</div>
+	                ${sub ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">${escapeHtml(sub)}</div>` : ""}
+	              </td>
+	              <td><input data-idx="${idx}" class="qty" type="number" min="1" max="9999" step="1" value="${qtyView}" style="width:96px" /></td>
+	              <td>${money(it.sale_price)}</td>
+	              <td data-line-total>${money(it.total || 0)}</td>
+	              <td><button class="btn small" data-remove="${idx}">X</button></td>
+	            </tr>
+	          `;
+	        }).join("");
+	        recalc();
+	      }
+
+	      function normalizeBillQty(raw) {
+	        const n = Number(raw);
+	        if (!Number.isFinite(n)) return null;
+	        const whole = Math.trunc(n);
+	        if (whole < 1) return 1;
+	        if (whole > 9999) return 9999;
+	        return whole;
+	      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>\"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+      }
+
+	      function categoryLabel(code) {
+	        const c = String(code || "").toUpperCase();
+	        if (c === "WHISKEY") return "Whiskey";
+        if (c === "BRANDY") return "Brandy";
+        if (c === "RUM") return "Rum";
+        if (c === "VODKA") return "Vodka";
+        if (c === "BEER") return "Beer";
+        if (c === "GIN") return "Gin";
+        if (c === "WINE") return "Wine";
+        if (c === "CARBONATED_WINE") return "Carbonated Wine";
+	        if (c === "OTHERS") return "Others";
+	        return c ? String(code) : "";
+	      }
+
+	      const STOCK_CATEGORY_ORDER = [
+	        "WHISKEY",
+	        "BRANDY",
+	        "RUM",
+	        "VODKA",
+	        "GIN",
+	        "OTHERS",
+	        "BEER"
+	      ];
+	      const STOCK_CATEGORY_RANK = new Map(STOCK_CATEGORY_ORDER.map((c, i) => [c, i]));
+	      const STOCK_OTHERS_RANK = STOCK_CATEGORY_RANK.get("OTHERS") ?? 5;
+
+	      function stockCategoryRank(rawCategory) {
+	        const c = String(rawCategory || "").toUpperCase();
+	        if (c === "WINE" || c === "CARBONATED_WINE") return STOCK_OTHERS_RANK;
+	        return STOCK_CATEGORY_RANK.get(c) ?? STOCK_OTHERS_RANK;
+	      }
+
+	      function normalizeStockSearchText(v) {
+	        return String(v ?? "")
+	          .toLowerCase()
+	          .replace(/[^a-z0-9]+/g, " ")
+	          .trim();
+	      }
+
+	      function stockSearchScore(p, queryRaw) {
+	        const q = normalizeStockSearchText(queryRaw);
+	        if (!q) return 0;
+	        const name = normalizeStockSearchText(p?.name ?? "");
+	        const size = normalizeStockSearchText(p?.size ?? "");
+	        const category = normalizeStockSearchText(categoryLabel(p?.category));
+	        let score = 0;
+
+	        if (name === q) score += 1200;
+	        if (name.startsWith(q)) score += 760;
+	        if (name.split(" ").some((word) => word.startsWith(q))) score += 460;
+	        if (name.includes(q)) score += 300;
+	        if (size === q) score += 240;
+	        if (size.startsWith(q)) score += 180;
+	        if (size.includes(q)) score += 130;
+	        if (category.includes(q)) score += 90;
+	        return score;
+	      }
+
+	      function sortStockProducts(rows, queryRaw = "") {
+	        const query = String(queryRaw || "").trim();
+	        if (!query) {
+	          return [...rows].sort((a, b) => {
+	            const rankDiff = stockCategoryRank(a?.category) - stockCategoryRank(b?.category);
+	            if (rankDiff !== 0) return rankDiff;
+	            const nameDiff = String(a?.name ?? "").localeCompare(String(b?.name ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	            if (nameDiff !== 0) return nameDiff;
+	            return String(a?.size ?? "").localeCompare(String(b?.size ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	          });
+	        }
+
+	        return [...rows]
+	          .map((p) => ({ p, score: stockSearchScore(p, query) }))
+	          .sort((a, b) => {
+	            if (b.score !== a.score) return b.score - a.score;
+	            const rankDiff = stockCategoryRank(a.p?.category) - stockCategoryRank(b.p?.category);
+	            if (rankDiff !== 0) return rankDiff;
+	            const nameDiff = String(a.p?.name ?? "").localeCompare(String(b.p?.name ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	            if (nameDiff !== 0) return nameDiff;
+	            return String(a.p?.size ?? "").localeCompare(String(b.p?.size ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	          })
+	          .map((entry) => entry.p);
+	      }
+
+	      document.getElementById("billItems").addEventListener("input", (e) => {
+	        const input = e.target.closest("input.qty");
+	        if (!input) return;
+	        const idx = Number(input.dataset.idx);
+	        const parsed = normalizeBillQty(input.value);
+	        if (parsed === null) return;
+	        bill[idx].qty = parsed;
+	        if (String(parsed) !== String(input.value)) input.value = String(parsed);
+	        const tr = input.closest("tr");
+	        const lineTotalEl = tr?.querySelector("[data-line-total]");
+	        if (lineTotalEl) lineTotalEl.textContent = money(parsed * Number(bill[idx].sale_price || 0));
+	        recalc();
+	      });
+	      document.getElementById("billItems").addEventListener("keydown", (e) => {
+	        const input = e.target.closest("input.qty");
+	        if (!input || e.key !== "Enter") return;
+	        e.preventDefault();
+	        const idx = Number(input.dataset.idx);
+	        const parsed = normalizeBillQty(input.value);
+	        if (parsed !== null) {
+	          bill[idx].qty = parsed;
+	          input.value = String(parsed);
+	        }
+	        renderBill();
+	        hideSuggest();
+	        try {
+	          searchInput.focus();
+	          searchInput.select();
+	        } catch {}
+	      });
+	      document.getElementById("billItems").addEventListener("click", (e) => {
+	        const btn = e.target.closest("button[data-remove]");
+	        if (!btn) return;
+	        const idx = Number(btn.dataset.remove);
+	        bill.splice(idx, 1);
+	        renderBill();
+	      });
+
+	      function addProductToBill(p, qtyToAdd = 1) {
+	        const safeQty = normalizeBillQty(qtyToAdd) ?? 1;
+	        const existingIdx = bill.findIndex((x) => x.id === p.id);
+	        let focusQtyIdx = -1;
+	        if (existingIdx >= 0) {
+	          bill[existingIdx].qty = Math.min(9999, Number(bill[existingIdx].qty || 0) + safeQty);
+	          focusQtyIdx = existingIdx;
+	        } else {
+	          bill.push({
+	            id: p.id,
+	            name: p.name,
+	            sale_price: Number(p.sale_price || 0),
+	            category: p.category,
+	            size: p.size,
+	            qty: safeQty
+	          });
+	          focusQtyIdx = bill.length - 1;
+	        }
+	        renderBill();
+	        if (focusQtyIdx >= 0) {
+	          requestAnimationFrame(() => {
+	            const qtyInput = document.querySelector(`#billItems input.qty[data-idx="${focusQtyIdx}"]`);
+	            if (!qtyInput) return;
+	            try {
+	              qtyInput.focus();
+	              qtyInput.select();
+	            } catch {}
+	          });
+	        }
+	      }
+
+      // Search add
+	      const searchInput = document.getElementById("searchInput");
+	      try { searchInput.focus(); } catch {}
+	      const suggestBox = document.getElementById("searchSuggestBox");
+	      const suggestItems = document.getElementById("searchSuggestItems");
+	      let suggestTimer = null;
+	      let lastSuggest = "";
+	      let suggestRows = [];
+	      let suggestActiveIdx = -1;
+
+	      function normalizeSuggestText(v) {
+	        return String(v ?? "")
+	          .toLowerCase()
+	          .replace(/[^a-z0-9]+/g, " ")
+	          .trim();
+	      }
+
+	      function suggestScore(p, queryRaw) {
+	        const qText = normalizeSuggestText(queryRaw);
+	        if (!qText) return 0;
+
+	        const name = normalizeSuggestText(p?.name ?? "");
+	        const size = normalizeSuggestText(p?.size ?? "");
+	        const category = normalizeSuggestText(categoryLabel(p?.category));
+	        let score = 0;
+
+	        if (qText) {
+	          if (name === qText) score += 1200;
+	          if (name.startsWith(qText)) score += 700;
+	          if (name.split(" ").some((word) => word.startsWith(qText))) score += 420;
+	          if (name.includes(qText)) score += 260;
+	          if (size.includes(qText)) score += 140;
+	          if (category.includes(qText)) score += 80;
+	        }
+	        return score;
+	      }
+
+	      function sortSuggestRows(rows, queryRaw) {
+	        return [...rows]
+	          .map((p) => ({ p, score: suggestScore(p, queryRaw) }))
+	          .filter((entry) => entry.score > 0)
+	          .sort((a, b) => {
+	            if (b.score !== a.score) return b.score - a.score;
+	            const nameDiff = String(a.p?.name ?? "").localeCompare(String(b.p?.name ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	            if (nameDiff !== 0) return nameDiff;
+	            return String(a.p?.size ?? "").localeCompare(String(b.p?.size ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	          })
+	          .map((entry) => entry.p);
+	      }
+
+	      function hideSuggest() {
+	        suggestBox.style.display = "none";
+	        suggestItems.innerHTML = "";
+	        suggestRows = [];
+	        suggestActiveIdx = -1;
+	      }
+
+	      function renderSuggest(rows, preferredActiveIdx = 0) {
+	        if (!rows || rows.length === 0) return hideSuggest();
+	        suggestRows = rows;
+	        suggestActiveIdx = Math.max(0, Math.min(preferredActiveIdx, suggestRows.length - 1));
+	        suggestBox.style.display = "";
+	        suggestItems.innerHTML = rows.map((p, idx) => `
+	          <div data-suggest-row="${idx}" class="row" style="justify-content:space-between; align-items:center; gap:8px; border:1px solid ${idx === suggestActiveIdx ? "rgba(15,118,110,.45)" : "var(--line)"}; background:${idx === suggestActiveIdx ? "rgba(15,118,110,.08)" : "transparent"}; border-radius:8px; padding:8px">
+	            <div style="font-size:13px; line-height:1.35">${escapeHtml(productLabel(p))}</div>
+	            <button class="btn small ${idx === suggestActiveIdx ? "primary" : ""}" data-pid="${p.id}" data-idx="${idx}" style="white-space:nowrap">Add</button>
+	          </div>
+	        `).join("");
+	      }
+
+	      function moveSuggest(delta) {
+	        if (!suggestRows.length) return;
+	        let next = suggestActiveIdx + delta;
+	        if (next < 0) next = suggestRows.length - 1;
+	        if (next >= suggestRows.length) next = 0;
+	        renderSuggest(suggestRows, next);
+	      }
+
+	      async function loadSuggest(q) {
+	        const query = q.trim();
+	        if (!query) return hideSuggest();
+	        lastSuggest = query;
+	        const [startsWithRes, searchRes] = await Promise.all([
+	          api(`/api/shops/${shopId}/products?startsWith=${encodeURIComponent(query)}&limit=40`),
+	          api(`/api/shops/${shopId}/products?search=${encodeURIComponent(query)}&limit=80`)
+	        ]);
+	        if (lastSuggest !== query) return;
+	        const merged = new Map();
+	        for (const p of startsWithRes?.products || []) merged.set(p.id, p);
+	        for (const p of searchRes?.products || []) merged.set(p.id, p);
+	        const ranked = sortSuggestRows([...merged.values()], query).slice(0, 20);
+	        renderSuggest(ranked, 0);
+	      }
+
+	      searchInput.addEventListener("input", () => {
+	        const q = searchInput.value;
+	        if (suggestTimer) clearTimeout(suggestTimer);
+	        suggestTimer = setTimeout(() => {
+	          loadSuggest(q).catch(() => hideSuggest());
+	        }, 140);
+	      });
+
+	      searchInput.addEventListener("keydown", async (e) => {
+	        if (e.key === "ArrowDown") {
+	          e.preventDefault();
+	          moveSuggest(1);
+	          return;
+	        }
+	        if (e.key === "ArrowUp") {
+	          e.preventDefault();
+	          moveSuggest(-1);
+	          return;
+	        }
+	        if (e.key === "Escape") {
+	          hideSuggest();
+	          return;
+	        }
+	        if (e.key !== "Enter") return;
+	        e.preventDefault();
+	        const q = searchInput.value.trim();
+	        if (!q) return;
+	        try {
+	          if (!suggestRows.length) await loadSuggest(q);
+	          const chosen =
+	            suggestRows.length > 0
+	              ? suggestRows[Math.max(0, Math.min(suggestActiveIdx, suggestRows.length - 1))]
+	              : null;
+	          if (!chosen) return toast("Not found", `No product matching "${q}"`);
+	          addProductToBill(chosen);
+	          searchInput.value = "";
+	          hideSuggest();
+	        } catch (err) { toast("Error", err.message); }
+	      });
+
+	      suggestItems.addEventListener("click", async (e) => {
+	        const btn = e.target.closest("button[data-pid]");
+	        if (!btn) return;
+	        const pid = Number(btn.dataset.pid);
+	        const idx = Number(btn.dataset.idx);
+	        const p =
+	          (Number.isFinite(idx) ? suggestRows[idx] : null) ||
+	          suggestRows.find((x) => x.id === pid) ||
+	          productsCache.find((x) => x.id === pid);
+	        if (p) addProductToBill(p);
+	        searchInput.value = "";
+	        hideSuggest();
+	        try { searchInput.focus(); } catch {}
+	      });
+
+	      suggestItems.addEventListener("mousemove", (e) => {
+	        const row = e.target.closest("[data-suggest-row]");
+	        if (!row) return;
+	        const idx = Number(row.dataset.suggestRow);
+	        if (!Number.isFinite(idx) || idx === suggestActiveIdx) return;
+	        renderSuggest(suggestRows, idx);
+	      });
+
+      document.addEventListener("click", (e) => {
+        if (e.target.closest("#searchSuggestBox")) return;
+        if (e.target.closest("#searchInput")) return;
+        hideSuggest();
+      });
+
+      document.getElementById("clearBill").addEventListener("click", () => {
+        bill = [];
+        renderBill();
+      });
+
+	      document.getElementById("createBill").addEventListener("click", async () => {
+	        if (bill.length === 0) return toast("Empty bill", "Add items first");
+	        const paymentMethod = document.getElementById("paymentMethod").value;
+	        try {
+	          const res = await api(`/api/shops/${shopId}/bills`, {
+	            method: "POST",
+	            body: JSON.stringify({
+	              paymentMethod,
+	              items: bill.map((it) => ({ productId: it.id, qty: it.qty }))
+	            })
+	          });
+	          toast("Bill created", `Bill No: ${res.bill.bill_no} | Total: ${money(res.bill.total)}`);
+	          const createdId = Number(res?.bill?.id);
+	          lastBillId = Number.isFinite(createdId) ? createdId : null;
+	          bill = [];
+	          renderBill();
+	          await loadProducts();
+	        } catch (err) {
+	          toast("Error", err.message);
+	        }
+	      });
+
+	      document.getElementById("printBill").addEventListener("click", () => {
+	        if (!Number.isFinite(lastBillId)) return toast("No bill", "Create bill first");
+	        const url = `/bill-print.html?shopId=${encodeURIComponent(shopId)}&billId=${encodeURIComponent(lastBillId)}&autoPrint=1`;
+	        window.open(url, "_blank");
+	      });
+
+		      // Stock: load/render products
+		      let productsCache = [];
+		      let editingId = null;
+          let editingFromOtherItem = false;
+		      const productFormModal = document.getElementById("productFormModal");
+		      const openProductFormBtn = document.getElementById("openProductForm");
+		      const closeProductFormBtn = document.getElementById("closeProductForm");
+
+	      const GENERAL_SIZES = ["1 Litre", "2 Litre", "1000ML", "750ML", "700ML", "650ML", "500ML", "375ML", "330ML", "275ML", "200ML", "180ML", "150ML", "90ML", "60ML", "50ML"];
+	      const BEER_SIZES = ["650ML", "500 TIN", "330 TIN", "330 PINT", "275ML"];
+
+	      const pCategoryEl = document.getElementById("pCategory");
+	      const pSizeEl = document.getElementById("pSize");
+	      const pBpcEl = document.getElementById("pBpc");
+	      const categoryFilterEl = document.getElementById("productCategoryFilter");
+	      const productSearchEl = document.getElementById("productSearch");
+	      const otherItemsSearchEl = document.getElementById("otherItemsSearch");
+	      const otherItemsPrevBtn = document.getElementById("otherItemsPrev");
+	      const otherItemsNextBtn = document.getElementById("otherItemsNext");
+	      const otherItemsMetaEl = document.getElementById("otherItemsMeta");
+	      const otherItemsTableEl = document.getElementById("otherItemsTable");
+	      const openOtherItemsFullPageBtn = document.getElementById("openOtherItemsFullPage");
+	      const otherItemsFullModalEl = document.getElementById("otherItemsFullModal");
+	      const closeOtherItemsFullModalBtn = document.getElementById("closeOtherItemsFullModal");
+	      const otherItemsFullSearchEl = document.getElementById("otherItemsFullSearch");
+	      const otherItemsFullPrevBtn = document.getElementById("otherItemsFullPrev");
+	      const otherItemsFullNextBtn = document.getElementById("otherItemsFullNext");
+	      const otherItemsFullMetaEl = document.getElementById("otherItemsFullMeta");
+	      const otherItemsFullTableEl = document.getElementById("otherItemsFullTable");
+	      const OTHER_ITEMS_PAGE_SIZE = 200;
+	      const OTHER_ITEMS_FULL_PAGE_SIZE = 500;
+	      const STOCK_SEARCH_DEBOUNCE_MS = 140;
+	      let otherItemsOffset = 0;
+	      let otherItemsTotal = 0;
+	      let otherItemsRows = [];
+	      let otherItemsSearchTimer = null;
+	      let otherItemsFullOffset = 0;
+	      let otherItemsFullTotal = 0;
+	      let otherItemsFullRows = [];
+	      let otherItemsFullSearchTimer = null;
+	      let stockSearchTimer = null;
+	      let stockLoadSeq = 0;
+	      let stockActiveIdx = -1;
+
+	      function openProductModal() {
+	        if (!productFormModal) return;
+	        productFormModal.classList.add("show");
+	        productFormModal.setAttribute("aria-hidden", "false");
+	        try { document.getElementById("pName")?.focus(); } catch {}
+	        loadOtherItems(true).catch((e) => {
+	          if (otherItemsMetaEl) otherItemsMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      }
+
+	      function closeProductModal() {
+	        if (!productFormModal) return;
+	        closeOtherItemsFullModal();
+	        productFormModal.classList.remove("show");
+	        productFormModal.setAttribute("aria-hidden", "true");
+	      }
+
+	      function openOtherItemsFullModal() {
+	        if (!otherItemsFullModalEl) return;
+	        if (otherItemsFullSearchEl) {
+	          otherItemsFullSearchEl.value = String(otherItemsSearchEl?.value ?? "").trim();
+	        }
+	        otherItemsFullModalEl.classList.add("show");
+	        otherItemsFullModalEl.setAttribute("aria-hidden", "false");
+	        try { otherItemsFullSearchEl?.focus(); } catch {}
+	        loadOtherItemsFull(true).catch((e) => {
+	          if (otherItemsFullMetaEl) otherItemsFullMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      }
+
+	      function closeOtherItemsFullModal() {
+	        if (!otherItemsFullModalEl) return;
+	        otherItemsFullModalEl.classList.remove("show");
+	        otherItemsFullModalEl.setAttribute("aria-hidden", "true");
+	      }
+
+	      function syncBeer650BpcRule() {
+	        if (!pBpcEl) return;
+	        const sizeValue = String(pSizeEl?.value ?? "").toUpperCase();
+	        const isBeer650 =
+	          String(pCategoryEl?.value ?? "").toUpperCase() === "BEER" &&
+	          sizeValue === "650ML";
+	        if (sizeValue === "90ML") {
+	          pBpcEl.value = "96";
+	          pBpcEl.disabled = true;
+	          return;
+	        }
+	        if (isBeer650) {
+	          pBpcEl.value = "12";
+	          pBpcEl.disabled = true;
+	          return;
+	        }
+	        pBpcEl.disabled = false;
+	        const current = Number(pBpcEl.value || 0);
+	        if (!Number.isFinite(current) || current <= 0) pBpcEl.value = "12";
+	      }
+
+	      function setSizeOptions(category, selected) {
+	        const isBeer = String(category || "").toUpperCase() === "BEER";
+	        const list = isBeer ? BEER_SIZES : GENERAL_SIZES;
+	        pSizeEl.innerHTML = list.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+	        const wanted = String(selected || "").trim();
+	        const def = isBeer ? "650ML" : "750ML";
+	        pSizeEl.value = list.includes(wanted) ? wanted : def;
+	        syncBeer650BpcRule();
+	      }
+
+	      function normalizeCategoryForSelect(raw) {
+	        const v = String(raw || "OTHERS").toUpperCase().replace(/[\s-]+/g, "_");
+	        pCategoryEl.value = v;
+	        if (pCategoryEl.value !== v) pCategoryEl.value = "OTHERS";
+	        return pCategoryEl.value;
+	      }
+
+	      function clearProductForm() {
+	        editingId = null;
+	        editingFromOtherItem = false;
+	        document.getElementById("pQty").disabled = false;
+	        document.getElementById("saveOtherItem").disabled = false;
+	        ["pName","pBarcode","pSale","pMin","pQty"].forEach((id) => (document.getElementById(id).value = ""));
+	        document.getElementById("pSale").value = "0";
+	        document.getElementById("pMin").value = "0";
+	        document.getElementById("pQty").value = "0";
+	        pCategoryEl.value = "OTHERS";
+	        setSizeOptions(pCategoryEl.value, null);
+	        document.getElementById("pBpc").value = "12";
+	        document.getElementById("editHint").textContent = "Click a product row to load it for editing.";
+	      }
+
+	      function productLabel(p) {
+	        const parts = [];
+	        const cat = categoryLabel(p.category);
+	        if (cat) parts.push(cat);
+	        if (p.size) parts.push(String(p.size));
+	        if (p.bottles_per_case) parts.push(`Case:${p.bottles_per_case}`);
+	        const prefix = parts.length ? `[${parts.join(" • ")}] ` : "";
+	        return `${prefix}${p.name ?? ""}`;
+	      }
+
+	      function loadOtherItemInFormForStock(p) {
+	        if (!p || !Number.isFinite(Number(p.id))) return;
+	        editingId = Number(p.id);
+	        editingFromOtherItem = true;
+	        document.getElementById("pName").value = p.name ?? "";
+	        document.getElementById("pBarcode").value = p.barcode ?? "";
+	        const cat = normalizeCategoryForSelect(p.category ?? "OTHERS");
+	        setSizeOptions(cat, p.size);
+	        document.getElementById("pBpc").value = p.bottles_per_case ?? 12;
+	        syncBeer650BpcRule();
+	        document.getElementById("pSale").value = p.sale_price ?? 0;
+	        document.getElementById("pMin").value = p.min_qty ?? 0;
+	        document.getElementById("pQty").value = p.current_qty ?? 0;
+	        document.getElementById("pQty").disabled = false;
+	        document.getElementById("saveOtherItem").disabled = true;
+	        document.getElementById("editHint").textContent =
+	          `Editing OTHERS item #${editingId}. Change name/category/size/qty and click Save Product to move it to stock list.`;
+	        try { document.getElementById("pName")?.focus(); } catch {}
+	      }
+
+	      function renderOtherItemsRows(rows, offset) {
+	        if (!rows.length) return `<tr><td colspan="4" style="color:var(--muted)">No others items found.</td></tr>`;
+	        return rows
+	          .map(
+	            (p, idx) => `
+		          <tr>
+		            <td>${offset + idx + 1}</td>
+		            <td>${escapeHtml(p.name ?? "")}</td>
+		            <td>${money(p.sale_price || 0)}</td>
+		            <td><button class="btn small" type="button" data-other-add="${p.id}">Add to Stock</button></td>
+		          </tr>
+		        `
+	          )
+	          .join("");
+	      }
+
+	      function renderProductsTable() {
+	        const tbody = document.getElementById("productsTable");
+	        if (!tbody) return;
+	        if (!productsCache.length) {
+	          tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted)">No products found.</td></tr>`;
+	          return;
+	        }
+	        tbody.innerHTML = productsCache
+	          .map((p, idx) => {
+	            const baseBg =
+	              Number(p.current_qty) < Number(p.min_qty) ? "background:rgba(239,68,68,.10)" : "";
+	            const activeBg = idx === stockActiveIdx ? "background:rgba(15,118,110,.12)" : "";
+	            const rowStyle = [baseBg, activeBg].filter(Boolean).join("; ");
+	            return `
+	              <tr data-id="${p.id}" data-idx="${idx}" style="${rowStyle}">
+	                <td>${idx + 1}</td>
+	                <td>${escapeHtml(p.name)}</td>
+	                <td>${escapeHtml(p.size ?? "")}</td>
+	                <td>${Number(p.current_qty || 0).toFixed(2)}</td>
+	                <td>${escapeHtml(categoryLabel(p.category) || "Others")}</td>
+	              </tr>
+	            `;
+	          })
+	          .join("");
+	      }
+
+	      function setStockActiveIndex(nextIdx, shouldScroll = true) {
+	        if (!productsCache.length) {
+	          stockActiveIdx = -1;
+	          renderProductsTable();
+	          return;
+	        }
+	        const maxIdx = productsCache.length - 1;
+	        stockActiveIdx = Math.max(0, Math.min(nextIdx, maxIdx));
+	        renderProductsTable();
+	        if (!shouldScroll) return;
+	        requestAnimationFrame(() => {
+	          const row = document.querySelector(`#productsTable tr[data-idx="${stockActiveIdx}"]`);
+	          row?.scrollIntoView({ block: "nearest" });
+	        });
+	      }
+
+	      function openStockProductByIndex(idx) {
+	        if (!Number.isFinite(idx)) return;
+	        if (idx < 0 || idx >= productsCache.length) return;
+	        stockActiveIdx = idx;
+	        renderProductsTable();
+	        const p = productsCache[idx];
+	        if (!p) return;
+	        editingId = p.id;
+	        editingFromOtherItem = false;
+	        document.getElementById("pName").value = p.name ?? "";
+	        document.getElementById("pBarcode").value = p.barcode ?? "";
+	        const cat = normalizeCategoryForSelect(p.category);
+	        setSizeOptions(cat, p.size);
+	        document.getElementById("pBpc").value = p.bottles_per_case ?? 12;
+	        syncBeer650BpcRule();
+	        document.getElementById("pSale").value = p.sale_price ?? 0;
+	        document.getElementById("pMin").value = p.min_qty ?? 0;
+	        document.getElementById("pQty").value = p.current_qty ?? 0;
+	        document.getElementById("pQty").disabled = true;
+	        document.getElementById("saveOtherItem").disabled = true;
+	        document.getElementById("editHint").textContent = `Editing product #${p.id}. Click Save to update.`;
+	        toast("Edit mode", "Product loaded for update");
+	        openProductModal();
+	      }
+
+	      function isStockPaneActive() {
+	        const stockPaneEl = document.querySelector('[data-pane="stock"]');
+	        if (!(stockPaneEl instanceof HTMLElement)) return false;
+	        return stockPaneEl.style.display !== "none";
+	      }
+
+	      function handleStockListKeydown(e, fromSearchInput = false) {
+	        if (!productsCache.length) return false;
+	        if (!isStockPaneActive()) return false;
+	        if (productFormModal?.classList.contains("show")) return false;
+	        if (otherItemsFullModalEl?.classList.contains("show")) return false;
+
+	        const target = e.target;
+	        const isEditableTarget =
+	          target instanceof Element &&
+	          !!target.closest("input, textarea, select, [contenteditable='true']");
+
+	        if (fromSearchInput) {
+	          if (!(target instanceof Element) || !target.closest("#productSearch")) return false;
+	        } else if (isEditableTarget) {
+	          return false;
+	        }
+
+	        if (e.key === "ArrowDown") {
+	          e.preventDefault();
+	          setStockActiveIndex(stockActiveIdx < 0 ? 0 : stockActiveIdx + 1, true);
+	          return true;
+	        }
+	        if (e.key === "ArrowUp") {
+	          e.preventDefault();
+	          setStockActiveIndex(stockActiveIdx < 0 ? 0 : stockActiveIdx - 1, true);
+	          return true;
+	        }
+	        if (e.key === "Enter") {
+	          e.preventDefault();
+	          openStockProductByIndex(stockActiveIdx < 0 ? 0 : stockActiveIdx);
+	          return true;
+	        }
+	        return false;
+	      }
+
+	      function handleStockSaveShiftKey(e) {
+	        if (e.key !== "Shift") return false;
+	        if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return false;
+	        if (!isStockPaneActive()) return false;
+	        if (!productFormModal?.classList.contains("show")) return false;
+	        if (otherItemsFullModalEl?.classList.contains("show")) return false;
+	        const target = e.target;
+	        const isEditableTarget =
+	          target instanceof Element &&
+	          !!target.closest("input, textarea, select, [contenteditable='true']");
+	        if (isEditableTarget) return false;
+	        e.preventDefault();
+	        document.getElementById("saveProduct")?.click();
+	        return true;
+	      }
+
+	      async function loadOtherItems(resetOffset = false) {
+	        if (!otherItemsTableEl) return;
+	        if (resetOffset) otherItemsOffset = 0;
+	        const q = String(otherItemsSearchEl?.value ?? "").trim();
+	        const params = new URLSearchParams();
+	        params.set("category", "OTHERS_PLUS_GIN");
+	        params.set("othersItemsOnly", "1");
+	        params.set("includeTotal", "1");
+	        params.set("limit", String(OTHER_ITEMS_PAGE_SIZE));
+	        params.set("offset", String(otherItemsOffset));
+	        if (q) params.set("search", q);
+	        const res = await api(`/api/shops/${shopId}/products?${params.toString()}`);
+	        otherItemsRows = res.products || [];
+	        otherItemsTotal = Number(res.total || 0);
+	        const start = otherItemsRows.length ? otherItemsOffset + 1 : 0;
+	        const end = otherItemsOffset + otherItemsRows.length;
+	        if (otherItemsMetaEl) otherItemsMetaEl.textContent = `Showing ${start}-${end} of ${otherItemsTotal}`;
+	        if (otherItemsPrevBtn) otherItemsPrevBtn.disabled = otherItemsOffset <= 0;
+	        if (otherItemsNextBtn) otherItemsNextBtn.disabled = end >= otherItemsTotal;
+	        otherItemsTableEl.innerHTML = renderOtherItemsRows(otherItemsRows, otherItemsOffset);
+	      }
+
+	      async function loadOtherItemsFull(resetOffset = false) {
+	        if (!otherItemsFullTableEl) return;
+	        if (resetOffset) otherItemsFullOffset = 0;
+	        const q = String(otherItemsFullSearchEl?.value ?? "").trim();
+	        const params = new URLSearchParams();
+	        params.set("category", "OTHERS_PLUS_GIN");
+	        params.set("othersItemsOnly", "1");
+	        params.set("includeTotal", "1");
+	        params.set("limit", String(OTHER_ITEMS_FULL_PAGE_SIZE));
+	        params.set("offset", String(otherItemsFullOffset));
+	        if (q) params.set("search", q);
+	        const res = await api(`/api/shops/${shopId}/products?${params.toString()}`);
+	        otherItemsFullRows = res.products || [];
+	        otherItemsFullTotal = Number(res.total || 0);
+	        const start = otherItemsFullRows.length ? otherItemsFullOffset + 1 : 0;
+	        const end = otherItemsFullOffset + otherItemsFullRows.length;
+	        if (otherItemsFullMetaEl) otherItemsFullMetaEl.textContent = `Showing ${start}-${end} of ${otherItemsFullTotal}`;
+	        if (otherItemsFullPrevBtn) otherItemsFullPrevBtn.disabled = otherItemsFullOffset <= 0;
+	        if (otherItemsFullNextBtn) otherItemsFullNextBtn.disabled = end >= otherItemsFullTotal;
+	        otherItemsFullTableEl.innerHTML = renderOtherItemsRows(otherItemsFullRows, otherItemsFullOffset);
+	      }
+
+	      setSizeOptions(pCategoryEl.value, null);
+	      pCategoryEl.addEventListener("change", () => setSizeOptions(pCategoryEl.value, pSizeEl.value));
+	      pSizeEl?.addEventListener("change", () => syncBeer650BpcRule());
+
+	      openProductFormBtn?.addEventListener("click", () => {
+	        clearProductForm();
+	        openProductModal();
+	      });
+	      closeProductFormBtn?.addEventListener("click", () => closeProductModal());
+	      productFormModal?.addEventListener("click", (e) => {
+	        if (e.target === productFormModal) closeProductModal();
+	      });
+	      openOtherItemsFullPageBtn?.addEventListener("click", () => openOtherItemsFullModal());
+	      closeOtherItemsFullModalBtn?.addEventListener("click", () => closeOtherItemsFullModal());
+	      otherItemsFullModalEl?.addEventListener("click", (e) => {
+	        if (e.target === otherItemsFullModalEl) closeOtherItemsFullModal();
+	      });
+	      document.addEventListener("keydown", (e) => {
+	        if (e.key !== "Escape") return;
+	        if (shortcutHelpModalEl?.classList.contains("show")) {
+	          closeShortcutHelpModal();
+	          return;
+	        }
+	        if (otherItemsFullModalEl?.classList.contains("show")) {
+	          closeOtherItemsFullModal();
+	          return;
+	        }
+	        if (productFormModal?.classList.contains("show")) closeProductModal();
+	      });
+
+	      async function loadProducts() {
+	        const q = String(productSearchEl?.value ?? "").trim();
+	        const category = categoryFilterEl?.value || "ALL";
+	        const reqSeq = ++stockLoadSeq;
+	        const baseParams = new URLSearchParams();
+	        if (category && category !== "ALL") baseParams.set("category", category);
+
+	        let rows = [];
+	        if (q) {
+	          const startsWithParams = new URLSearchParams(baseParams);
+	          startsWithParams.set("startsWith", q);
+	          startsWithParams.set("limit", "300");
+	          const searchParams = new URLSearchParams(baseParams);
+	          searchParams.set("search", q);
+	          searchParams.set("limit", "600");
+	          const [startsWithRes, searchRes] = await Promise.all([
+	            api(`/api/shops/${shopId}/products?${startsWithParams.toString()}`),
+	            api(`/api/shops/${shopId}/products?${searchParams.toString()}`)
+	          ]);
+	          if (reqSeq !== stockLoadSeq) return;
+	          const merged = new Map();
+	          for (const p of startsWithRes?.products || []) merged.set(p.id, p);
+	          for (const p of searchRes?.products || []) merged.set(p.id, p);
+	          rows = [...merged.values()];
+	        } else {
+	          const params = new URLSearchParams(baseParams);
+	          params.set("limit", "1000");
+	          const res = await api(`/api/shops/${shopId}/products?${params.toString()}`);
+	          if (reqSeq !== stockLoadSeq) return;
+	          rows = res.products || [];
+	        }
+
+	        const prevActiveProductId =
+	          stockActiveIdx >= 0 && stockActiveIdx < productsCache.length
+	            ? Number(productsCache[stockActiveIdx]?.id)
+	            : null;
+	        productsCache = sortStockProducts(rows, q);
+	        if (productsCache.length) {
+	          const nextIdx =
+	            prevActiveProductId == null
+	              ? 0
+	              : productsCache.findIndex((p) => Number(p.id) === prevActiveProductId);
+	          stockActiveIdx = nextIdx >= 0 ? nextIdx : 0;
+	        } else {
+	          stockActiveIdx = -1;
+	        }
+	        renderProductsTable();
+
+	        syncBoiProductChoices(productsCache);
+	      }
+
+	      productSearchEl?.addEventListener("input", () => {
+	        if (stockSearchTimer) clearTimeout(stockSearchTimer);
+	        stockSearchTimer = setTimeout(() => {
+	          loadProducts().catch((e) => toast("Error", e.message));
+	        }, STOCK_SEARCH_DEBOUNCE_MS);
+	      });
+	      productSearchEl?.addEventListener("keydown", (e) => {
+	        if (handleStockListKeydown(e, true)) e.stopPropagation();
+	      });
+	      document.addEventListener("keydown", (e) => {
+	        if (handleStockSaveShiftKey(e)) return;
+	        handleStockListKeydown(e, false);
+	      });
+	      categoryFilterEl.addEventListener("change", () => {
+	        if (stockSearchTimer) clearTimeout(stockSearchTimer);
+	        loadProducts().catch((e) => toast("Error", e.message));
+	      });
+
+	      otherItemsSearchEl?.addEventListener("input", () => {
+	        if (otherItemsSearchTimer) clearTimeout(otherItemsSearchTimer);
+	        otherItemsSearchTimer = setTimeout(() => {
+	          loadOtherItems(true).catch((e) => {
+	            if (otherItemsMetaEl) otherItemsMetaEl.textContent = e?.message || "Failed to load others items";
+	          });
+	        }, 180);
+	      });
+
+	      otherItemsPrevBtn?.addEventListener("click", () => {
+	        if (otherItemsOffset <= 0) return;
+	        otherItemsOffset = Math.max(0, otherItemsOffset - OTHER_ITEMS_PAGE_SIZE);
+	        loadOtherItems(false).catch((e) => {
+	          if (otherItemsMetaEl) otherItemsMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      });
+
+	      otherItemsNextBtn?.addEventListener("click", () => {
+	        if (otherItemsOffset + OTHER_ITEMS_PAGE_SIZE >= otherItemsTotal) return;
+	        otherItemsOffset += OTHER_ITEMS_PAGE_SIZE;
+	        loadOtherItems(false).catch((e) => {
+	          if (otherItemsMetaEl) otherItemsMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      });
+
+	      otherItemsFullSearchEl?.addEventListener("input", () => {
+	        if (otherItemsFullSearchTimer) clearTimeout(otherItemsFullSearchTimer);
+	        otherItemsFullSearchTimer = setTimeout(() => {
+	          loadOtherItemsFull(true).catch((e) => {
+	            if (otherItemsFullMetaEl) otherItemsFullMetaEl.textContent = e?.message || "Failed to load others items";
+	          });
+	        }, 180);
+	      });
+
+	      otherItemsFullPrevBtn?.addEventListener("click", () => {
+	        if (otherItemsFullOffset <= 0) return;
+	        otherItemsFullOffset = Math.max(0, otherItemsFullOffset - OTHER_ITEMS_FULL_PAGE_SIZE);
+	        loadOtherItemsFull(false).catch((e) => {
+	          if (otherItemsFullMetaEl) otherItemsFullMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      });
+
+	      otherItemsFullNextBtn?.addEventListener("click", () => {
+	        if (otherItemsFullOffset + OTHER_ITEMS_FULL_PAGE_SIZE >= otherItemsFullTotal) return;
+	        otherItemsFullOffset += OTHER_ITEMS_FULL_PAGE_SIZE;
+	        loadOtherItemsFull(false).catch((e) => {
+	          if (otherItemsFullMetaEl) otherItemsFullMetaEl.textContent = e?.message || "Failed to load others items";
+	        });
+	      });
+
+	      otherItemsTableEl?.addEventListener("click", (e) => {
+	        const btn = e.target.closest("button[data-other-add]");
+	        if (!btn) return;
+	        const id = Number(btn.dataset.otherAdd || "");
+	        if (!Number.isFinite(id)) return;
+	        const p = otherItemsRows.find((x) => x.id === id);
+	        if (!p) return;
+	        loadOtherItemInFormForStock(p);
+	        toast("Edit required", "Update item details and click Save Product");
+	      });
+
+	      otherItemsFullTableEl?.addEventListener("click", (e) => {
+	        const btn = e.target.closest("button[data-other-add]");
+	        if (!btn) return;
+	        const id = Number(btn.dataset.otherAdd || "");
+	        if (!Number.isFinite(id)) return;
+	        const p = otherItemsFullRows.find((x) => x.id === id);
+	        if (!p) return;
+	        loadOtherItemInFormForStock(p);
+	        closeOtherItemsFullModal();
+	        toast("Edit required", "Update item details and click Save Product");
+	      });
+
+	      document.getElementById("productsTable").addEventListener("click", async (e) => {
+	        const tr = e.target.closest("tr[data-id]");
+	        if (!tr) return;
+	        const idx = Number(tr.dataset.idx);
+	        openStockProductByIndex(idx);
+	      });
+
+		      document.getElementById("saveProduct").addEventListener("click", async () => {
+		        const payload = {
+          name: document.getElementById("pName").value.trim(),
+          barcode: document.getElementById("pBarcode").value.trim(),
+          category: pCategoryEl.value,
+          size: pSizeEl.value,
+          bottlesPerCase: Number(document.getElementById("pBpc").value || "12"),
+          salePrice: Number(document.getElementById("pSale").value||0),
+          minQty: Number(document.getElementById("pMin").value||0),
+          currentQty: Number(document.getElementById("pQty").value||0)
+        };
+		        try {
+		          if (editingId) {
+                const targetId = editingId;
+                const requestedQty = Number(document.getElementById("pQty").value || 0);
+		            delete payload.currentQty;
+		            await api(`/api/shops/${shopId}/products/${targetId}`, { method:"PUT", body: JSON.stringify(payload) });
+                if (editingFromOtherItem) {
+                  const newQty = Number.isFinite(requestedQty) && requestedQty >= 0 ? requestedQty : 0;
+                  await api(`/api/shops/${shopId}/stock/adjust`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                      productId: targetId,
+                      newQty,
+                      note: "Moved from Others Items to stock"
+                    })
+                  });
+                  toast("Saved", "Item moved to stock list");
+                } else {
+		              toast("Saved", "Product updated");
+                }
+		          } else {
+		            await api(`/api/shops/${shopId}/products`, { method:"POST", body: JSON.stringify(payload) });
+		            toast("Saved", "Product created");
+	          }
+	          clearProductForm();
+	          closeProductModal();
+	          await loadProducts();
+	        } catch (err) { toast("Error", err.message); }
+	      });
+
+		      document.getElementById("saveOtherItem").addEventListener("click", async () => {
+		        if (editingId) return toast("Edit mode", "Use Save Product to update");
+		        const name = document.getElementById("pName").value.trim();
+		        const mrp = Number(document.getElementById("pSale").value || 0);
+		        if (!name) return toast("Missing", "Item name required");
+		        if (!Number.isFinite(mrp) || mrp <= 0) return toast("Missing", "MRP (price) required");
+		        const payload = { name, mrp, quickAdd: "OTHERS_ITEMS" };
+		        try {
+		          await api(`/api/shops/${shopId}/products`, { method:"POST", body: JSON.stringify(payload) });
+		          toast("Saved", "Item added to OTHERS ITEMS");
+		          clearProductForm();
+			          try {
+			            if (otherItemsSearchEl) otherItemsSearchEl.value = name;
+			            await loadOtherItems(true);
+			          } catch {}
+			          try {
+			            if (otherItemsFullModalEl?.classList.contains("show")) {
+			              if (otherItemsFullSearchEl) otherItemsFullSearchEl.value = name;
+			              await loadOtherItemsFull(true);
+			            }
+			          } catch {}
+			          try {
+			            document.getElementById("productSearch").value = "";
+	                categoryFilterEl.value = "ALL";
+			          } catch {}
+		          await loadProducts();
+		          try { document.getElementById("pName")?.focus(); } catch {}
+			        } catch (err) { toast("Error", err.message); }
+			      });
+
+	      // KSBCL Bill of Invoice
+	      const boiDateEl = document.getElementById("boiDate");
+	      const boiRestEl = document.getElementById("boiRest");
+	      const boiDateContinueBtn = document.getElementById("boiDateContinue");
+	      const boiInvoiceNoEl = document.getElementById("boiInvoiceNo");
+	      const boiPermitNoEl = document.getElementById("boiPermitNo");
+	      const boiVehicleRegEl = document.getElementById("boiVehicleReg");
+	      const boiProductSearchEl = document.getElementById("boiProductSearch");
+	      const boiProductEl = document.getElementById("boiProduct");
+	      const boiProductSuggestEl = document.getElementById("boiProductSuggest");
+	      const boiProductSuggestItemsEl = document.getElementById("boiProductSuggestItems");
+	      const boiProductSelectedEl = document.getElementById("boiProductSelected");
+	      const boiCasesEl = document.getElementById("boiCases");
+	      const boiBottlesEl = document.getElementById("boiBottles");
+	      const boiSubmitBtn = document.getElementById("boiSubmit");
+	      const boiHeaderHintEl = document.getElementById("boiHeaderHint");
+	      const incomingTitleEl = document.getElementById("incomingTitle");
+	      const incomingMetaEl = document.getElementById("incomingMeta");
+	      const BOI_PRODUCT_SEARCH_DEBOUNCE_MS = 130;
+	      const BOI_PRODUCT_SUGGEST_LIMIT = 24;
+	      let boiProductSelectedId = null;
+	      let boiProductSuggestRows = [];
+	      let boiProductSuggestActiveIdx = -1;
+	      let boiProductSearchTimer = null;
+	      const boiEnterOrder = [
+	        boiInvoiceNoEl,
+	        boiPermitNoEl,
+	        boiVehicleRegEl,
+	        boiProductSearchEl,
+	        boiCasesEl,
+	        boiBottlesEl,
+	        boiSubmitBtn
+	      ].filter(Boolean);
+
+	      function normalizeBoiProductText(v) {
+	        return String(v ?? "")
+	          .toLowerCase()
+	          .replace(/[^a-z0-9]+/g, " ")
+	          .trim();
+	      }
+
+	      function boiProductSearchScore(p, queryRaw) {
+	        const q = normalizeBoiProductText(queryRaw);
+	        if (!q) return 0;
+	        const name = normalizeBoiProductText(p?.name ?? "");
+	        const size = normalizeBoiProductText(p?.size ?? "");
+	        const cat = normalizeBoiProductText(categoryLabel(p?.category));
+	        let score = 0;
+	        if (name === q) score += 1300;
+	        if (name.startsWith(q)) score += 760;
+	        if (name.split(" ").some((word) => word.startsWith(q))) score += 470;
+	        if (name.includes(q)) score += 300;
+	        if (size.includes(q)) score += 160;
+	        if (cat.includes(q)) score += 90;
+	        return score;
+	      }
+
+	      function rankBoiProductRows(rows, queryRaw) {
+	        const q = String(queryRaw || "").trim();
+	        if (!q) return [...rows];
+	        return [...rows]
+	          .map((p) => ({ p, score: boiProductSearchScore(p, q) }))
+	          .filter((entry) => entry.score > 0)
+	          .sort((a, b) => {
+	            if (b.score !== a.score) return b.score - a.score;
+	            const nameDiff = String(a.p?.name ?? "").localeCompare(String(b.p?.name ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	            if (nameDiff !== 0) return nameDiff;
+	            return String(a.p?.size ?? "").localeCompare(String(b.p?.size ?? ""), undefined, {
+	              sensitivity: "base",
+	              numeric: true
+	            });
+	          })
+	          .map((entry) => entry.p);
+	      }
+
+	      function hideBoiProductSuggest() {
+	        if (boiProductSuggestEl) boiProductSuggestEl.style.display = "none";
+	        if (boiProductSuggestItemsEl) boiProductSuggestItemsEl.innerHTML = "";
+	        boiProductSuggestRows = [];
+	        boiProductSuggestActiveIdx = -1;
+	      }
+
+	      function setBoiSelectedProduct(p) {
+	        if (!p || !Number.isFinite(Number(p.id))) return;
+	        boiProductSelectedId = Number(p.id);
+	        if (boiProductEl instanceof HTMLSelectElement) {
+	          boiProductEl.value = String(p.id);
+	        }
+	        const label = productLabel(p);
+	        if (boiProductSearchEl instanceof HTMLInputElement) boiProductSearchEl.value = label;
+	        if (boiProductSelectedEl) boiProductSelectedEl.textContent = `Selected: ${label}`;
+	        hideBoiProductSuggest();
+	      }
+
+	      function syncBoiProductChoices(rows = []) {
+	        if (!(boiProductEl instanceof HTMLSelectElement)) return;
+	        const list = Array.isArray(rows) ? rows : [];
+	        boiProductEl.innerHTML = list.map((p) => `<option value="${p.id}">${escapeHtml(productLabel(p))}</option>`).join("");
+	        if (!list.length) {
+	          boiProductSelectedId = null;
+	          if (boiProductSearchEl instanceof HTMLInputElement) boiProductSearchEl.value = "";
+	          if (boiProductSelectedEl) boiProductSelectedEl.textContent = "No product selected";
+	          hideBoiProductSuggest();
+	          return;
+	        }
+	        const selected = list.find((p) => Number(p.id) === Number(boiProductSelectedId)) || list[0];
+	        setBoiSelectedProduct(selected);
+	      }
+
+	      function renderBoiProductSuggest(rows, preferredActiveIdx = 0) {
+	        if (!boiProductSuggestEl || !boiProductSuggestItemsEl) return;
+	        if (!rows.length) {
+	          hideBoiProductSuggest();
+	          return;
+	        }
+	        boiProductSuggestRows = rows;
+	        boiProductSuggestActiveIdx = Math.max(0, Math.min(preferredActiveIdx, rows.length - 1));
+	        boiProductSuggestEl.style.display = "";
+	        boiProductSuggestItemsEl.innerHTML = rows
+	          .map((p, idx) => {
+	            const details = [categoryLabel(p.category), p.size].filter(Boolean).join(" • ");
+	            return `
+	              <button
+	                class="boi-product-option ${idx === boiProductSuggestActiveIdx ? "active" : ""}"
+	                type="button"
+	                data-boi-pid="${p.id}"
+	                data-idx="${idx}"
+	              >
+	                <span>${escapeHtml(p.name ?? "")}</span>
+	                ${details ? `<small>${escapeHtml(details)}</small>` : ""}
+	              </button>
+	            `;
+	          })
+	          .join("");
+	      }
+
+	      function refreshBoiProductSuggest(queryRaw = "") {
+	        if (!(boiProductSearchEl instanceof HTMLInputElement)) return;
+	        const q = String(queryRaw ?? boiProductSearchEl.value).trim();
+	        const rows = Array.isArray(productsCache) ? productsCache : [];
+	        if (!rows.length) return hideBoiProductSuggest();
+	        const ranked = (q ? rankBoiProductRows(rows, q) : [...rows]).slice(0, BOI_PRODUCT_SUGGEST_LIMIT);
+	        renderBoiProductSuggest(ranked, 0);
+	      }
+
+	      function moveBoiProductSuggest(delta) {
+	        if (!boiProductSuggestRows.length) return;
+	        let next = boiProductSuggestActiveIdx + delta;
+	        if (next < 0) next = boiProductSuggestRows.length - 1;
+	        if (next >= boiProductSuggestRows.length) next = 0;
+	        renderBoiProductSuggest(boiProductSuggestRows, next);
+	      }
+
+	      function applyBoiHeaderLockState(rows) {
+	        const first = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+	        const lockHeader = !!first;
+	        const invoiceValue = String(first?.invoice_no ?? "").trim();
+	        const permitValue = String(first?.permit_no ?? "").trim();
+	        const vehicleValue = String(first?.vehicle_no ?? "").trim();
+
+	        if (boiInvoiceNoEl instanceof HTMLInputElement) {
+	          boiInvoiceNoEl.value = lockHeader ? invoiceValue : "";
+	          boiInvoiceNoEl.disabled = lockHeader;
+	        }
+	        if (boiPermitNoEl instanceof HTMLInputElement) {
+	          boiPermitNoEl.value = lockHeader ? permitValue : "";
+	          boiPermitNoEl.disabled = lockHeader;
+	        }
+	        if (boiVehicleRegEl instanceof HTMLInputElement) {
+	          boiVehicleRegEl.value = lockHeader ? vehicleValue : "";
+	          boiVehicleRegEl.disabled = lockHeader;
+	        }
+	        if (boiHeaderHintEl) {
+	          boiHeaderHintEl.textContent = lockHeader
+	            ? "Invoice No, Permit No, Vehicle Reg No are locked for this date. Add items with the same invoice entry."
+	            : "Enter Invoice No, Permit No, Vehicle Reg No once for the selected date.";
+	        }
+	      }
+
+	      function focusNextBoiField(currentEl) {
+	        const idx = boiEnterOrder.indexOf(currentEl);
+	        if (idx < 0) return;
+	        const nextEl = boiEnterOrder[Math.min(idx + 1, boiEnterOrder.length - 1)];
+	        if (!(nextEl instanceof HTMLElement)) return;
+	        nextEl.focus();
+	        if (nextEl instanceof HTMLInputElement) {
+	          try { nextEl.select(); } catch {}
+	        }
+	      }
+
+	      boiDateEl?.addEventListener("keydown", (e) => {
+	        if (e.key !== "Enter") return;
+	        e.preventDefault();
+	        boiDateContinueBtn?.click();
+	      });
+
+	      boiProductSearchEl?.addEventListener("focus", () => refreshBoiProductSuggest(boiProductSearchEl.value));
+	      boiProductSearchEl?.addEventListener("input", () => {
+	        if (boiProductSearchTimer) clearTimeout(boiProductSearchTimer);
+	        boiProductSearchTimer = setTimeout(() => {
+	          refreshBoiProductSuggest(boiProductSearchEl.value);
+	        }, BOI_PRODUCT_SEARCH_DEBOUNCE_MS);
+	      });
+	      boiProductSearchEl?.addEventListener("keydown", (e) => {
+	        if (e.key === "ArrowDown") {
+	          e.preventDefault();
+	          moveBoiProductSuggest(1);
+	          return;
+	        }
+	        if (e.key === "ArrowUp") {
+	          e.preventDefault();
+	          moveBoiProductSuggest(-1);
+	          return;
+	        }
+	        if (e.key === "Escape") {
+	          hideBoiProductSuggest();
+	          return;
+	        }
+	        if (e.key !== "Enter") return;
+	        e.preventDefault();
+	        const q = String(boiProductSearchEl?.value || "").trim();
+	        const chosen =
+	          boiProductSuggestRows[Math.max(0, Math.min(boiProductSuggestActiveIdx, boiProductSuggestRows.length - 1))] ||
+	          rankBoiProductRows(productsCache, q)[0] ||
+	          productsCache.find((p) => Number(p.id) === Number(boiProductSelectedId)) ||
+	          productsCache[0];
+	        if (chosen) setBoiSelectedProduct(chosen);
+	        focusNextBoiField(boiProductSearchEl);
+	      });
+	      boiProductSuggestItemsEl?.addEventListener("click", (e) => {
+	        const btn = e.target.closest("button[data-boi-pid]");
+	        if (!btn) return;
+	        const idx = Number(btn.dataset.idx);
+	        const pid = Number(btn.dataset.boiPid);
+	        const chosen =
+	          (Number.isFinite(idx) ? boiProductSuggestRows[idx] : null) ||
+	          productsCache.find((p) => Number(p.id) === pid);
+	        if (chosen) setBoiSelectedProduct(chosen);
+	        try {
+	          boiCasesEl?.focus();
+	          boiCasesEl?.select();
+	        } catch {}
+	      });
+	      document.addEventListener("click", (e) => {
+	        if (e.target.closest("#boiProductSearch")) return;
+	        if (e.target.closest("#boiProductSuggest")) return;
+	        hideBoiProductSuggest();
+	      });
+
+	      boiEnterOrder.forEach((fieldEl) => {
+	        if (!(fieldEl instanceof HTMLElement)) return;
+	        if (fieldEl === boiProductSearchEl) return;
+	        fieldEl.addEventListener("keydown", (e) => {
+	          if (e.key !== "Enter") return;
+	          e.preventDefault();
+	          if (fieldEl === boiSubmitBtn) {
+	            boiSubmitBtn?.click();
+	            return;
+	          }
+	          focusNextBoiField(fieldEl);
+	        });
+	      });
+	      boiDateEl.value = todayIso();
+	
+	      boiDateContinueBtn?.addEventListener("click", async () => {
+	        const date = boiDateEl.value || todayIso();
+	        boiDateEl.value = date;
+	        if (boiRestEl) boiRestEl.style.display = "";
+	        await loadIncoming(date);
+	        try {
+	          if (boiInvoiceNoEl?.disabled) {
+	            boiProductSearchEl?.focus();
+	            boiProductSearchEl?.select();
+	          } else {
+	            boiInvoiceNoEl?.focus();
+	            boiInvoiceNoEl?.select();
+	          }
+	        } catch {}
+	      });
+	
+	      boiDateEl.addEventListener("change", async () => {
+	        const date = boiDateEl.value || todayIso();
+	        if (boiRestEl) boiRestEl.style.display = "none";
+	        await loadIncoming(date);
+	      });
+	      boiSubmitBtn?.addEventListener("click", async () => {
+	        const date = boiDateEl.value || todayIso();
+	        const invoiceNo = String(boiInvoiceNoEl?.value || "").trim();
+	        const permitNo = String(boiPermitNoEl?.value || "").trim();
+	        const vehicleRegNo = String(boiVehicleRegEl?.value || "").trim();
+	        const productId = Number(boiProductSelectedId ?? boiProductEl?.value);
+        const cases = Number(boiCasesEl?.value || "0");
+        const bottles = Number(boiBottlesEl?.value || "0");
+        if (!invoiceNo && !boiInvoiceNoEl?.disabled) return toast("Missing", "Invoice No required");
+        if (!Number.isFinite(productId) || productId <= 0) return toast("Missing", "Select product");
+        if ((!Number.isFinite(cases) || cases < 0) || (!Number.isFinite(bottles) || bottles < 0))
+          return toast("Invalid", "Cases/Bottles must be 0 or more");
+        if ((cases + bottles) <= 0) return toast("Empty", "Enter cases or bottles");
+        try {
+          await api(`/api/shops/${shopId}/stock/bill-of-invoice`, {
+            method: "POST",
+            body: JSON.stringify({ date, invoiceNo, permitNo, vehicleRegNo, productId, cases, bottles })
+          });
+          toast("Saved", "BILL OF INVOICE added");
+	          if (boiCasesEl) boiCasesEl.value = "0";
+	          if (boiBottlesEl) boiBottlesEl.value = "0";
+	          await loadProducts();
+	          await loadIncoming(date);
+	          try {
+	            boiProductSearchEl?.focus();
+	            boiProductSearchEl?.select();
+	          } catch {}
+	        } catch (err) { toast("Error", err.message); }
+	      });
+
+		      // Incoming stock (daily)
+		      async function loadIncoming(date) {
+		        const effectiveDate = date || boiDateEl.value || todayIso();
+		        const today = todayIso();
+		        if (incomingTitleEl) {
+		          if (effectiveDate === today) incomingTitleEl.textContent = "Items arrived today";
+		          else if (effectiveDate < today) incomingTitleEl.textContent = `Items arrived (Previous date: ${effectiveDate})`;
+		          else incomingTitleEl.textContent = `Items arrived (Date: ${effectiveDate})`;
+		        }
+		        const res = await api(`/api/shops/${shopId}/stock/incoming?date=${encodeURIComponent(effectiveDate)}`);
+		        const rows = Array.isArray(res?.rows) ? res.rows : [];
+		        applyBoiHeaderLockState(rows);
+		        if (rows.length === 0) {
+		          if (incomingMetaEl) incomingMetaEl.textContent = "INVOICE: - • PERMIT: - • VEHICLE: - • SOURCE: -";
+		          document.getElementById("incomingTable").innerHTML = `<tr><td colspan="4" style="color:var(--muted)">No data</td></tr>`;
+		          return;
+		        }
+		        const uniq = (arr) => [...new Set(arr.filter((x) => String(x || "").trim() !== ""))];
+		        const invoiceNos = uniq(rows.map((r) => String(r.invoice_no ?? "").trim()));
+		        const permitNos = uniq(rows.map((r) => String(r.permit_no ?? "").trim()));
+		        const vehicleNos = uniq(rows.map((r) => String(r.vehicle_no ?? "").trim()));
+		        const sources = uniq(rows.map((r) => String(r.source ?? r.incoming_name ?? "").trim()));
+		        if (incomingMetaEl) {
+		          const show = (label, values) => `${label}: ${values.length ? values.join(", ") : "-"}`;
+		          incomingMetaEl.textContent = [
+		            show("INVOICE", invoiceNos),
+		            show("PERMIT", permitNos),
+		            show("VEHICLE", vehicleNos),
+		            show("SOURCE", sources)
+		          ].join(" • ");
+		        }
+		        document.getElementById("incomingTable").innerHTML = rows.map((r) => `
+		          <tr>
+		            <td>${escapeHtml(`${r.product_name ?? ""} ${r.size ?? ""}`.trim())}</td>
+		            <td>${Math.max(0, Math.trunc(Number(r.qty || 0)))}</td>
+		            <td>${r.cases ?? ""}</td>
+		            <td>${r.bottles ?? ""}</td>
+		          </tr>
+		        `).join("");
+		      }
+
+      // Sales tab
+      const salesFrom = document.getElementById("salesFrom");
+      const salesTo = document.getElementById("salesTo");
+      salesFrom.value = todayIso();
+      salesTo.value = todayIso();
+      document.getElementById("loadSales").addEventListener("click", async () => {
+        try {
+          const res = await api(`/api/shops/${shopId}/bills?from=${salesFrom.value}&to=${salesTo.value}`);
+          document.getElementById("salesTable").innerHTML = (res.bills||[]).map((b) => `
+            <tr>
+              <td>${escapeHtml(b.bill_no)}</td>
+              <td>${money(b.total)}</td>
+              <td>${escapeHtml(b.payment_method)}</td>
+              <td>${escapeHtml(b.created_at)}</td>
+              <td><a class="btn small" href="/bill-print.html?shopId=${encodeURIComponent(shopId)}&billId=${encodeURIComponent(b.id)}&autoPrint=1" target="_blank" rel="noreferrer">Print</a></td>
+            </tr>
+          `).join("");
+        } catch (err) { toast("Error", err.message); }
+      });
+
+      // Employees tab
+      async function loadEmployees() {
+        const res = await api(`/api/shops/${shopId}/employees`);
+        document.getElementById("empTable").innerHTML = (res.employees||[]).map((e) => `
+          <tr>
+            <td>${escapeHtml(e.name)}</td>
+            <td>${e.age ?? ""}</td>
+            <td>${escapeHtml(e.address ?? "")}</td>
+            <td>${escapeHtml(e.id_proof ?? "")}</td>
+            <td>${escapeHtml(e.experience ?? "")}</td>
+          </tr>
+        `).join("");
+      }
+
+      document.getElementById("addEmp").addEventListener("click", async () => {
+        const payload = {
+          name: document.getElementById("eName").value.trim(),
+          age: document.getElementById("eAge").value ? Number(document.getElementById("eAge").value) : null,
+          address: document.getElementById("eAddress").value.trim(),
+          idProof: document.getElementById("eIdProof").value.trim(),
+          experience: document.getElementById("eExp").value.trim()
+        };
+        try {
+          await api(`/api/shops/${shopId}/employees`, { method:"POST", body: JSON.stringify(payload) });
+          toast("Added", "Employee saved");
+          ["eName","eAge","eAddress","eIdProof","eExp"].forEach((id) => document.getElementById(id).value = "");
+          await loadEmployees();
+        } catch (err) { toast("Error", err.message); }
+      });
+
+      // Expenses tab
+      const expFrom = document.getElementById("expFrom");
+      const expTo = document.getElementById("expTo");
+      const expDate = document.getElementById("expDate");
+      expFrom.value = todayIso();
+      expTo.value = todayIso();
+      expDate.value = todayIso();
+
+      async function loadExpenses() {
+        const res = await api(`/api/shops/${shopId}/expenses?from=${expFrom.value}&to=${expTo.value}`);
+        document.getElementById("expTable").innerHTML = (res.expenses||[]).map((x) => `
+          <tr>
+            <td>${escapeHtml(x.expense_date)}</td>
+            <td>${money(x.amount)}</td>
+            <td>${escapeHtml(x.category)}</td>
+            <td>${escapeHtml(x.note ?? "")}</td>
+          </tr>
+        `).join("");
+      }
+
+      document.getElementById("loadExp").addEventListener("click", () => loadExpenses().catch((e)=>toast("Error", e.message)));
+      document.getElementById("addExp").addEventListener("click", async () => {
+        const payload = {
+          expenseDate: expDate.value,
+          amount: Number(document.getElementById("expAmount").value||0),
+          category: document.getElementById("expCat").value.trim(),
+          note: document.getElementById("expNote").value.trim()
+        };
+        try {
+          await api(`/api/shops/${shopId}/expenses`, { method:"POST", body: JSON.stringify(payload) });
+          toast("Saved", "Expense added");
+          document.getElementById("expAmount").value = "";
+          document.getElementById("expCat").value = "";
+          document.getElementById("expNote").value = "";
+          await loadExpenses();
+        } catch (err) { toast("Error", err.message); }
+      });
+
+      // Reports tab
+      const repDate = document.getElementById("repDate");
+      repDate.value = todayIso();
+
+      async function loadReports() {
+        const res = await api(`/api/reports?shopId=${shopId}`);
+        document.getElementById("repTable").innerHTML = (res.reports||[]).map((r) => `
+          <tr>
+            <td>${escapeHtml(r.report_date)}</td>
+            <td><a class="btn small" href="/reports/${encodeURIComponent(r.file_name)}" target="_blank" rel="noreferrer">Download PDF</a></td>
+            <td>${escapeHtml(r.created_at)}</td>
+            <td><button class="btn danger small" data-del="${r.id}">Delete</button></td>
+          </tr>
+        `).join("");
+      }
+
+      document.getElementById("repTable").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button[data-del]");
+        if (!btn) return;
+        const id = Number(btn.dataset.del || "");
+        if (!Number.isFinite(id)) return;
+        if (!confirm("Delete this report PDF?")) return;
+        try {
+          await api(`/api/reports/${id}`, { method: "DELETE" });
+          toast("Deleted", "Report removed");
+          await loadReports();
+        } catch (err) { toast("Error", err.message); }
+      });
+
+      document.getElementById("genRep").addEventListener("click", async () => {
+        try {
+          await api(`/api/reports/daily`, { method:"POST", body: JSON.stringify({ date: repDate.value, shopId }) });
+          toast("Report ready", "PDF generated and SMS sent (or dry-run).");
+          await loadReports();
+        } catch (err) { toast("Error", err.message); }
+      });
+
+      // Initial loads
+      await loadProducts();
+      await loadIncoming();
+      await loadEmployees();
+      await loadExpenses();
+      await loadReports();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,284 @@
+[
+  {
+    "category": "BEER",
+    "product_name": "AMSTEL",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "BACARDI + CRANBERRY",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BACARDI + ORANGE",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BACARDI LEMONARDE",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER BLACK BURRY",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER BLUE BERRY",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER JAMAICA",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER MANGO PEACH",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER TANGY CRAN",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BREEZER WATERMELON",
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "category": "BEER",
+    "product_name": "BUDWEISER PREMIUM",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "BUDWEISER PREMIUM",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "BUDWESIER MAGUM",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "BUDWESIER MAGUM",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "BULLET",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "BULLET",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "CARLSBERG ELEPHANT",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "CARLSBERG ELEPHANT",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "CARLSBERG SMOOTH",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "HAYWARDS 5000",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "HEIN KEIN BEER",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER PREMIUM",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER PREMIUM",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER STRONG",
+    "size": "PINT",
+    "size_ml": 330
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER STRONG",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER STRONG",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER STRONG",
+    "size": "330",
+    "size_ml": 330
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER ULTRA",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KING FISHER ULTRA MAX",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KNOCK OUT",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "KNOCK OUT",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "LEGEND",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "LEGEND",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "LEGEND",
+    "size": "330",
+    "size_ml": 330
+  },
+  {
+    "category": "BEER",
+    "product_name": "POWER COOL",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "POWER COOL",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "POWER COOL",
+    "size": "330",
+    "size_ml": 330
+  },
+  {
+    "category": "BEER",
+    "product_name": "ROYAL CHALLENGE BEER",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "ROYAL CHALLENGE BEER",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "ROYAL CHALLENGE BEER",
+    "size": "330",
+    "size_ml": 330
+  },
+  {
+    "category": "BEER",
+    "product_name": "SUNNY BEACHES",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "SUNNY BEACHES",
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "category": "BEER",
+    "product_name": "TOBORG CLASSIC",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "TOBORG GREEN",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "TOBORG STRONG",
+    "size": "PINT",
+    "size_ml": null
+  },
+  {
+    "category": "BEER",
+    "product_name": "TOBORG STRONG",
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "category": "BEER",
+    "product_name": "TOBORG STRONG",
+    "size": "500",
+    "size_ml": 500
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "category": "WINE",
+    "product_name": "GOANAS WINE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WINE",
+    "product_name": "GOANAS WINE",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WINE",
+    "product_name": "LANGOOR WINE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WINE",
+    "product_name": "RICO SPIN",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WINE",
+    "product_name": "RICO SPIN",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WINE",
+    "product_name": "MAJIC PORT WINE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WINE",
+    "product_name": "MAJIC PORT WINE",
+    "size": "180",
+    "size_ml": 180
+  }
+]

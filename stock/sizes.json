@@ -1,0 +1,46 @@
+[
+  {
+    "size": "PINT",
+    "size_ml": null
+  },
+  {
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "size": "150",
+    "size_ml": 150
+  },
+  {
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "size": "275",
+    "size_ml": 275
+  },
+  {
+    "size": "330",
+    "size_ml": 330
+  },
+  {
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "size": "500",
+    "size_ml": 500
+  },
+  {
+    "size": "650",
+    "size_ml": 650
+  },
+  {
+    "size": "750",
+    "size_ml": 750
+  }
+]

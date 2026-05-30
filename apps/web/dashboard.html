@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SR Groups Dashboard</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">SR Groups Dashboard</div>
+            <div class="brand-sub">Ravi Liquor Shop • Aishwarya Bar • S R Residency</div>
+          </div>
+        </div>
+        <div class="row">
+          <a id="ownerBtn" class="btn small" href="/owner.html" style="display:none">Owner View</a>
+          <input id="date" type="date" style="width:160px" />
+          <button id="logout" class="btn danger small">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container" style="padding: 22px 0 50px">
+      <section class="dashboard-hero">
+        <div class="card">
+          <div class="card-inner">
+            <div class="pill">Executive Dashboard</div>
+            <h1 class="dashboard-title">Finance command center</h1>
+            <p style="margin:0;color:var(--muted);max-width:66ch">Revenue, forecasting, tax, customer movement, and business unit performance in one premium workspace.</p>
+            <div class="row" style="margin-top:18px">
+              <a class="btn primary" href="/shop.html">Start Billing</a>
+              <button class="btn" type="button" onclick="window.openCommandPalette?.()">Search Everywhere</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner kpi">
+            <div class="label">Combined • Daily Sales</div>
+            <div id="kpiSales" class="value">—</div>
+            <div class="sub">Live across all business units</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="metric-row">
+        <div class="card metric-card"><div class="card-inner kpi">
+          <div class="label">Tomorrow Forecast</div>
+          <div id="forecastRevenue" class="value">—</div>
+          <div class="sub">Projected revenue</div>
+        </div></div>
+        <div class="card metric-card"><div class="card-inner kpi">
+          <div class="label">Invoice Forecast</div>
+          <div id="forecastInvoices" class="value">—</div>
+          <div class="sub">Expected bills</div>
+        </div></div>
+        <div class="card metric-card"><div class="card-inner kpi">
+          <div class="label">Tax Analytics</div>
+          <div id="forecastTax" class="value">—</div>
+          <div class="sub">Estimated GST / tax</div>
+        </div></div>
+        <div class="card metric-card"><div class="card-inner kpi">
+          <div class="label">Trend</div>
+          <div id="trendState" class="value">—</div>
+          <div class="sub">Sales momentum</div>
+        </div></div>
+      </section>
+
+      <div style="height:18px"></div>
+
+      <div id="shopCards" class="grid cols-3"></div>
+
+      <section class="analytics-grid">
+        <div class="card">
+          <div class="card-inner">
+            <div class="row" style="justify-content:space-between">
+              <div>
+                <div class="pill">Sales Analytics</div>
+                <h2 style="margin:10px 0 0">Revenue Forecast Chart</h2>
+              </div>
+              <span style="color:var(--muted)">Confidence band</span>
+            </div>
+            <canvas id="revenueChart" class="mini-chart" width="900" height="280"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="pill">AI Insights</div>
+            <h2 style="margin:10px 0 12px">Business intelligence</h2>
+            <div id="insights" class="insight-list">
+              <div>Loading insights...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <div id="toast" class="toast">
+      <div class="t">Title</div>
+      <div class="m">Message</div>
+    </div>
+
+    <script type="module">
+      import { api, money, requireAuth, todayIso, toast } from "/assets/app.js";
+
+      const me = await requireAuth();
+      if (me?.role === "OWNER") document.getElementById("ownerBtn").style.display = "";
+
+      const dateEl = document.getElementById("date");
+      dateEl.value = todayIso();
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>\"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+      }
+
+      function unitMeta(name, idx) {
+        const n = String(name || "");
+        if (n === "Ravi Liquor Shop") {
+          return {
+            pillStyle: "color:var(--text);border-color:rgba(20,83,45,.32);background:rgba(20,83,45,.10)",
+            helper: "Click to open shop management system →"
+          };
+        }
+        if (n === "Aishwarya Bar") {
+          return {
+            pillStyle: "color:var(--text);border-color:rgba(15,118,110,.32);background:rgba(15,118,110,.10)",
+            helper: "Click to open shop management system →"
+          };
+        }
+        if (n === "S R Residency") {
+          return {
+            pillStyle: "color:var(--text);border-color:rgba(183,121,31,.34);background:rgba(183,121,31,.11)",
+            helper: "Lodging unit • 48 rooms (AC / Non AC / Single / Double / Suite)"
+          };
+        }
+        const fallbacks = [
+          "color:var(--text);border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.12)",
+          "color:var(--text);border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.12)",
+          "color:var(--text);border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.12)"
+        ];
+        return {
+          pillStyle: fallbacks[idx % fallbacks.length],
+          helper: "Click to open business unit management →"
+        };
+      }
+
+      function renderShopCards(rows) {
+        const host = document.getElementById("shopCards");
+        host.innerHTML = (rows || []).map((s, idx) => {
+          const meta = unitMeta(s.shopName, idx);
+          return `
+            <a class="card" href="/shop.html?shopId=${encodeURIComponent(s.shopId)}">
+              <div class="card-inner">
+                <div class="pill" style="${meta.pillStyle}">Business Unit</div>
+                <h2 style="margin:10px 0 6px">${escapeHtml(s.shopName ?? `Shop ${s.shopId}`)}</h2>
+                <div class="grid cols-1" style="margin-top:10px">
+                  <div class="kpi">
+                    <div class="label">Sales</div>
+                    <div class="value">${money(s.salesTotal || 0)}</div>
+                  </div>
+                </div>
+                <div style="margin-top:12px;color:var(--muted);font-size:13px">${escapeHtml(meta.helper)}</div>
+              </div>
+            </a>
+          `;
+        }).join("");
+      }
+
+      function drawChart(values) {
+        const canvas = document.getElementById("revenueChart");
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const max = Math.max(...values, 1);
+        const pad = 34;
+        const x = (i) => pad + (i * (w - pad * 2)) / Math.max(1, values.length - 1);
+        const y = (v) => h - pad - (v / max) * (h - pad * 2);
+        ctx.strokeStyle = "rgba(100,116,139,.22)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+          const yy = pad + (i * (h - pad * 2)) / 3;
+          ctx.beginPath(); ctx.moveTo(pad, yy); ctx.lineTo(w - pad, yy); ctx.stroke();
+        }
+        const gradient = ctx.createLinearGradient(0, 0, 0, h);
+        gradient.addColorStop(0, "rgba(15,118,110,.25)");
+        gradient.addColorStop(1, "rgba(15,118,110,0)");
+        ctx.beginPath();
+        values.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+        ctx.lineTo(x(values.length - 1), h - pad);
+        ctx.lineTo(x(0), h - pad);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.beginPath();
+        values.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--accent") || "#0f766e";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      function updateForecasts(rows) {
+        const sales = rows.map((s) => Number(s.salesTotal || 0));
+        const total = sales.reduce((a, b) => a + b, 0);
+        const avg = sales.length ? total / sales.length : 0;
+        const tomorrow = Math.max(total * 1.08, avg);
+        const invoices = Math.max(1, Math.round(tomorrow / 650));
+        const tax = tomorrow * 0.18;
+        document.getElementById("forecastRevenue").textContent = money(tomorrow);
+        document.getElementById("forecastInvoices").textContent = String(invoices);
+        document.getElementById("forecastTax").textContent = money(tax);
+        document.getElementById("trendState").textContent = tomorrow >= total ? "Up" : "Flat";
+        const chartValues = [0.72, 0.82, 0.78, 0.95, 1.04, 0.98, 1.08].map((n) => Math.max(100, tomorrow * n));
+        drawChart(chartValues);
+        document.getElementById("insights").innerHTML = [
+          `Tomorrow revenue forecast is ${money(tomorrow)} based on current business-unit performance.`,
+          `Expected invoice count is around ${invoices}; keep fast-moving products ready.`,
+          `Estimated tax collection is ${money(tax)} at the configured default rate.`,
+          `Use Settings → AI Settings to connect the local forecasting confidence level.`
+        ].map((x) => `<div>${escapeHtml(x)}</div>`).join("");
+      }
+
+      async function load() {
+        const date = dateEl.value || todayIso();
+        const data = await api(`/api/dashboard/summary?date=${encodeURIComponent(date)}`);
+        document.getElementById("kpiSales").textContent = money(data.combined.salesTotal);
+        renderShopCards(data.shops || []);
+        updateForecasts(data.shops || []);
+      }
+
+      dateEl.addEventListener("change", () => load().catch((e) => toast("Error", e.message)));
+      load().catch((e) => toast("Error", e.message));
+
+      document.getElementById("logout").addEventListener("click", async () => {
+        await api("/api/auth/logout", { method: "POST", body: "{}" }).catch(() => {});
+        window.location.href = "/index.html";
+      });
+    </script>
+  </body>
+</html>

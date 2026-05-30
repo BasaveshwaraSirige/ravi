@@ -1,0 +1,10 @@
+.DS_Store
+.env
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+apps/api/reports/
+node_modules/
+

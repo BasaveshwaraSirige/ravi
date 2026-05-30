@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SR Groups – Liquor & Bar Management System</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+    <style>
+      .home-shell {
+        padding: 24px 0 52px;
+      }
+      .home-topline {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0;
+        color: rgba(255, 253, 246, 0.72);
+        background: linear-gradient(135deg, #101611, #073f36);
+        padding: 9px 10px;
+        margin: 0;
+      }
+      .home-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .home-hero-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 360px;
+        background:
+          linear-gradient(125deg, rgba(16,22,17,.94), rgba(7,63,54,.92) 54%, rgba(194,138,33,.72)),
+          repeating-linear-gradient(135deg, rgba(255,255,255,.08) 0 1px, transparent 1px 22px);
+        color: #fffdf6;
+      }
+      .home-hero-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, rgba(255,253,246,.12), transparent 28%),
+          linear-gradient(180deg, transparent 54%, rgba(0,0,0,.22));
+        pointer-events: none;
+      }
+      .home-hero-content {
+        position: relative;
+        z-index: 1;
+      }
+      .home-hero-title {
+        margin: 0;
+        font-size: 72px;
+        line-height: 1.06;
+        letter-spacing: 0;
+        font-weight: 900;
+        max-width: 12ch;
+      }
+      .home-hero-sub {
+        margin: 14px 0 0;
+        color: rgba(255, 253, 246, 0.76);
+        font-size: 16px;
+        max-width: 58ch;
+      }
+      .home-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .home-kpis {
+        display: grid;
+        gap: 10px;
+        height: 100%;
+      }
+      .home-kpi {
+        border: 1px solid rgba(255, 253, 246, 0.18);
+        background:
+          linear-gradient(135deg, rgba(255,253,246,.94), rgba(235,233,221,.86));
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 16px 34px rgba(16, 22, 17, 0.11);
+      }
+      .home-kpi-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .home-kpi-value {
+        margin-top: 4px;
+        font-weight: 900;
+        font-size: 22px;
+      }
+      .home-section {
+        margin-top: 22px;
+      }
+      .home-section-title {
+        margin: 0 0 10px;
+        font-weight: 900;
+        font-size: 20px;
+      }
+      .home-shop {
+        height: 100%;
+      }
+      .home-shop-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .home-shop-name {
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.2;
+      }
+      .home-shop-address {
+        margin: 0;
+        color: var(--muted);
+      }
+      .home-shop-meta {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .home-meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.75);
+        padding: 6px 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .home-features {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .home-feature {
+        border: 1px solid rgba(7, 63, 54, 0.16);
+        border-radius: 8px;
+        background:
+          linear-gradient(145deg, rgba(255, 253, 246, .96), rgba(235, 233, 221, .72));
+        padding: 14px;
+        box-shadow: 0 10px 24px rgba(16, 22, 17, 0.08);
+      }
+      .home-feature-title {
+        font-size: 13px;
+        font-weight: 800;
+        margin: 0 0 6px;
+      }
+      .home-feature-text {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+      }
+      .home-cta {
+        margin-top: 16px;
+      }
+      .home-cta-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .home-cta-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 900;
+      }
+      .home-cta-text {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      @media (max-width: 980px) {
+        .home-hero {
+          grid-template-columns: 1fr;
+        }
+        .home-hero-title {
+          font-size: 50px;
+        }
+      }
+      @media (max-width: 900px) {
+        .home-features {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 580px) {
+        .home-features {
+          grid-template-columns: 1fr;
+        }
+        .home-hero-title {
+          font-size: 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="home-topline">A UNIT OF SR GROUPS</div>
+    <div class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">SR Groups Liquor and Bar Management</div>
+            <div class="brand-sub">Unified billing, stock, reporting, and operations</div>
+          </div>
+        </div>
+        <div class="row">
+          <a class="btn small" href="/dashboard.html">Dashboard</a>
+          <a class="btn primary small" href="/login.html">Login</a>
+        </div>
+      </div>
+    </div>
+
+    <main class="container home-shell">
+      <section class="home-hero">
+        <div class="card home-hero-card">
+          <div class="card-inner home-hero-content">
+            <div class="pill">Control Center</div>
+            <h1 class="home-hero-title">Operate Both Businesses from One Screen</h1>
+            <p class="home-hero-sub">
+              Manage billing, stock flow, KSBCL invoice entries, staff, and day-end reports in a single workflow.
+            </p>
+            <div class="home-actions">
+              <a class="btn primary" href="/login.html">Start Login</a>
+              <a class="btn" href="/dashboard.html">Open Dashboard</a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner home-kpis">
+            <div class="home-kpi">
+              <div class="home-kpi-label">Business Units</div>
+              <div class="home-kpi-value">3</div>
+            </div>
+            <div class="home-kpi">
+              <div class="home-kpi-label">Daily Operations</div>
+              <div class="home-kpi-value">Billing + Stock</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-section">
+        <h2 class="home-section-title">Business Units</h2>
+        <div class="grid cols-3">
+          <article class="card home-shop">
+            <div class="card-inner">
+              <div class="home-shop-head">
+                <h3 class="home-shop-name">Ravi Liquor Shop</h3>
+                <span class="pill" style="color:var(--text);border-color:rgba(20,83,45,.32);background:rgba(20,83,45,.10)">Shop</span>
+              </div>
+              <p class="home-shop-address">
+                SR complex no: 03, S.R (Sirige Rudramuniyappa) Ring Road, Rahim Nagara, Challakere-577522
+              </p>
+              <div class="home-shop-meta">
+                <span class="home-meta-pill">Retail Billing</span>
+                <span class="home-meta-pill">Stock Monitoring</span>
+                <span class="home-meta-pill">Daily Reports</span>
+              </div>
+            </div>
+          </article>
+          <article class="card home-shop">
+            <div class="card-inner">
+              <div class="home-shop-head">
+                <h3 class="home-shop-name">Aishwarya Bar</h3>
+                <span class="pill" style="color:var(--text);border-color:rgba(15,118,110,.32);background:rgba(15,118,110,.10)">Bar</span>
+              </div>
+              <p class="home-shop-address">
+                SH 48, near Government Degree College ground, Chitradurga Road, Challakere-577522
+              </p>
+              <div class="home-shop-meta">
+                <span class="home-meta-pill">Bar Operations</span>
+                <span class="home-meta-pill">KSBCL Invoice Entry</span>
+                <span class="home-meta-pill">Expense Tracking</span>
+              </div>
+            </div>
+          </article>
+          <article class="card home-shop">
+            <div class="card-inner">
+              <div class="home-shop-head">
+                <h3 class="home-shop-name">S R Residency</h3>
+                <span class="pill" style="color:var(--text);border-color:rgba(183,121,31,.34);background:rgba(183,121,31,.11)">Lodging</span>
+              </div>
+              <p class="home-shop-address">
+                OPP Busstand, challakere, Karnataka 577522
+              </p>
+              <div class="home-shop-meta">
+                <span class="home-meta-pill">48 Rooms</span>
+                <span class="home-meta-pill">AC and Non AC</span>
+                <span class="home-meta-pill">Single and Double Bed</span>
+                <span class="home-meta-pill">Suite (4 Bed Room)</span>
+                <span class="home-meta-pill">Separate Login</span>
+              </div>
+              <div style="margin-top:12px">
+                <a class="btn small" href="/login.html?username=srresidency">Lodging Login</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="home-section">
+        <h2 class="home-section-title">Core Workflow</h2>
+        <div class="home-features">
+          <div class="home-feature">
+            <p class="home-feature-title">Login and Access Control</p>
+            <p class="home-feature-text">Owner and shop-level access with protected pages.</p>
+          </div>
+          <div class="home-feature">
+            <p class="home-feature-title">Billing and Counter Sales</p>
+            <p class="home-feature-text">Fast item lookup, bill creation, and dedicated print action.</p>
+          </div>
+          <div class="home-feature">
+            <p class="home-feature-title">Stock and Incoming Entries</p>
+            <p class="home-feature-text">Track item quantities and bill-of-invoice stock arrivals by date.</p>
+          </div>
+          <div class="home-feature">
+            <p class="home-feature-title">Reports and Notifications</p>
+            <p class="home-feature-text">Generate daily PDFs and optional SMS updates.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-cta">
+        <div class="card">
+          <div class="card-inner home-cta-inner">
+            <div>
+              <h3 class="home-cta-title">Ready to start daily operations?</h3>
+              <p class="home-cta-text">Sign in to continue to SR Groups dashboard and shop workspaces.</p>
+            </div>
+            <a class="btn primary" href="/login.html">Go to Login</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

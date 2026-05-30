@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SR Groups Local AI Forecasting</title>
+    <link rel="stylesheet" href="/local-ai.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Self-hosted AI • Ollama + Python ML</div>
+        <h1>Forecast Dashboard</h1>
+      </div>
+      <div class="actions">
+        <select id="shopId">
+          <option value="">All allowed shops</option>
+        </select>
+        <button id="darkMode" class="ghost">Dark Mode</button>
+        <button id="refresh">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="loginCard" class="card login-card">
+        <h2>Login</h2>
+        <p>Use your local database account. No cloud AI keys are required.</p>
+        <div class="login-row">
+          <input id="username" placeholder="Username" autocomplete="username" />
+          <input id="password" placeholder="Password" type="password" autocomplete="current-password" />
+          <button id="login">Login</button>
+        </div>
+      </section>
+
+      <section class="grid kpis">
+        <article class="card"><span>Tomorrow Revenue</span><strong id="tomorrowRevenue">—</strong><em id="tomorrowRevenueCi">—</em></article>
+        <article class="card"><span>Tomorrow Invoices</span><strong id="tomorrowInvoices">—</strong><em id="tomorrowInvoicesCi">—</em></article>
+        <article class="card"><span>Weekly Revenue</span><strong id="weeklyRevenue">—</strong><em id="weeklyModel">—</em></article>
+        <article class="card"><span>Monthly Tax</span><strong id="taxForecast">—</strong><em id="taxModel">—</em></article>
+      </section>
+
+      <section class="grid charts">
+        <article class="card chart-card">
+          <div class="chart-head"><h2>Weekly Revenue Forecast</h2><span id="weeklyTrend">—</span></div>
+          <canvas id="weeklyChart" width="720" height="300"></canvas>
+        </article>
+        <article class="card chart-card">
+          <div class="chart-head"><h2>Tax Forecast</h2><span id="taxTrend">—</span></div>
+          <canvas id="taxChart" width="720" height="300"></canvas>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="chart-head"><h2>Business Insights</h2><span id="generatedAt">—</span></div>
+        <ul id="insights" class="insights"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="/forecast-dashboard.js"></script>
+  </body>
+</html>

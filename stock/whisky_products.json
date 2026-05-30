@@ -1,0 +1,458 @@
+[
+  {
+    "category": "WHISKY",
+    "product_name": "BLENDORS PRIDE WHISKY",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLENDORS PRIDE WHISKY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLENDORS PRIDE WHISKY",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "AFTER DARK",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "AFTER DARK",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "100 PIPERS",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "100 PIPERS",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "100 PIPERS",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK & WHITE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK & WHITE",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK & WHITE",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DSP BLACK",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DSP BLACK",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DSP BLACK",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DSP BLACK",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "8 PM",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "8 PM",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "8 PM",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "8 PM",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "IMPERIAL BLUE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "IMPERIAL BLUE",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "IMPERIAL BLUE",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "IMPERIAL BLUE",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DK",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "DK",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ORIGINAL TRAVELLER",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ORIGINAL TRAVELLER",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MAGIC WHISKY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC WHISKY",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC WHISKY",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC WHISKY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC WHISKY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC LUXURY",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC LUXURY",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC LUXURY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MC LUXURY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "O.C.WHISKY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "O.C.WHISKY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG TRIPLE GOLD",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG TRIPLE GOLD",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG TRIPLE GOLD",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BLACK DOG",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD TAVERN",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD TAVERN",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD TAVERN",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD TAVERN",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "150",
+    "size_ml": 150
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL CHALLENGE",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL CHALLENGE",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL CHALLENGE",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL STAG DOUBLE BLAC",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD GRAIN WHISKY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "OLD GRAIN WHISKY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "GOLDEN TOUCH WHISKY",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "VAT 69 WHISKY",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "HAYWARDS",
+    "size": "750",
+    "size_ml": 750
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "HAYWARDS",
+    "size": "375",
+    "size_ml": 375
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "HAYWARDS",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "HAYWARDS",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "KERALA MALT WHISKY",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "KERALA MALT WHISKY",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MAQUINTOSH",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "MAQUINTOSH",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "GOLD CUP",
+    "size": "180",
+    "size_ml": 180
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "GOLD CUP",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ORIGINAL CHOICE GOLD",
+    "size": "90",
+    "size_ml": 90
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "TEACHER'S WHISKY",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "ROYAL RANTHAMBORE",
+    "size": "60",
+    "size_ml": 60
+  },
+  {
+    "category": "WHISKY",
+    "product_name": "BANGALORE WHISKY",
+    "size": "90",
+    "size_ml": 90
+  }
+]

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Print Bill • SR Groups</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+    <style>
+      body { background: #ffffff; }
+      .receipt {
+        max-width: 420px;
+        margin: 18px auto;
+        background: #fff;
+        border: 1px solid rgba(2,6,23,.08);
+        border-radius: 8px;
+        padding: 16px;
+      }
+      .uog { text-align:center; font-weight: 1000; letter-spacing: 0; font-size: 14px; }
+      .shop { text-align:center; font-weight: 1000; font-size: 20px; margin-top: 6px; }
+      .addr { text-align:center; font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.35; }
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 12px;
+        margin-top: 12px;
+        font-size: 12px;
+        color: #0f172a;
+      }
+      .meta .k { color: #64748b; }
+      .rule { margin: 12px 0; border: none; border-top: 1px dashed rgba(2,6,23,.18); }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 7px 0; font-size: 12px; vertical-align: top; }
+      th { color: #334155; border-bottom: 1px dashed rgba(2,6,23,.18); }
+      td { border-bottom: 1px dashed rgba(2,6,23,.10); }
+      .r { text-align: right; }
+      .item-sub { display:block; color:#64748b; font-size: 11px; margin-top: 2px; }
+      .totals { margin-top: 10px; font-size: 13px; }
+      .totals .line { display:flex; justify-content:space-between; margin-top: 6px; }
+      .totals .grand { font-weight: 1000; font-size: 16px; }
+      .foot { margin-top: 12px; text-align:center; color:#64748b; font-size: 12px; }
+      .actions { display:flex; gap:10px; justify-content:center; margin: 14px 0 22px; }
+
+      @media print {
+        body { background: #fff; }
+        .receipt { border: none; border-radius: 0; margin: 0; max-width: none; padding: 0; }
+        .actions { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container" style="padding: 0 0 24px">
+      <div class="receipt" id="receipt">
+        <div class="uog">A UNIT OF SR GROUPS</div>
+        <div class="shop" id="shopName">—</div>
+        <div class="addr" id="shopAddress">—</div>
+
+        <div class="meta">
+          <div><span class="k">Date:</span> <span id="billDate">—</span></div>
+          <div><span class="k">Time:</span> <span id="billTime">—</span></div>
+          <div><span class="k">Bill No:</span> <span id="billNo">—</span></div>
+          <div><span class="k">Payment:</span> <span id="payMethod">—</span></div>
+        </div>
+
+        <hr class="rule" />
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="r" style="width:52px">Qty</th>
+              <th class="r" style="width:78px">Rate</th>
+              <th class="r" style="width:86px">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="items"></tbody>
+        </table>
+
+        <div class="totals">
+          <div class="line"><span class="k">Items</span><span id="itemCount">0</span></div>
+          <div class="line grand"><span>Grand Total</span><span id="grand">₹0.00</span></div>
+        </div>
+
+        <div class="foot">Thank you</div>
+      </div>
+
+      <div class="actions">
+        <button id="printBtn" class="btn primary">Print</button>
+        <a id="backBtn" class="btn" href="/dashboard.html">Back</a>
+      </div>
+    </main>
+
+    <div id="toast" class="toast">
+      <div class="t">Title</div>
+      <div class="m">Message</div>
+    </div>
+
+    <script type="module">
+      import { api, money, requireAuth, toast } from "/assets/app.js";
+
+      await requireAuth();
+
+      const qs = new URLSearchParams(location.search);
+      const shopId = Number(qs.get("shopId") || "");
+      const billId = Number(qs.get("billId") || "");
+      const autoPrint = qs.get("autoPrint") === "1";
+
+      if (!Number.isFinite(shopId) || !Number.isFinite(billId)) {
+        toast("Missing info", "shopId and billId are required");
+      }
+
+      const shops = await api("/api/shops");
+      const shop = (shops.shops || []).find((s) => s.id === shopId);
+      document.getElementById("shopName").textContent = shop?.name || `Shop ${shopId}`;
+      document.getElementById("shopAddress").textContent = shop?.address || "";
+      document.getElementById("backBtn").href = `/shop.html?shopId=${encodeURIComponent(shopId)}`;
+
+      const res = await api(`/api/shops/${shopId}/bills/${billId}`);
+      const bill = res.bill;
+      const items = res.items || [];
+
+      function categoryLabel(code) {
+        const c = String(code || "").toUpperCase();
+        if (c === "WHISKEY") return "Whiskey";
+        if (c === "BRANDY") return "Brandy";
+        if (c === "RUM") return "Rum";
+        if (c === "BEER") return "Beer";
+        if (c === "GIN") return "Gin";
+        if (c === "WINE") return "Wine";
+        if (c === "CARBONATED_WINE") return "Carbonated Wine";
+        if (c === "OTHERS") return "Others";
+        return code ? String(code) : "";
+      }
+
+      const createdAt = String(bill?.created_at || "");
+      const datePart = createdAt.includes(" ") ? createdAt.split(" ")[0] : createdAt.slice(0, 10);
+      const timePartFull = createdAt.includes(" ") ? createdAt.split(" ")[1] : "";
+      const timePart = timePartFull ? timePartFull.slice(0, 5) : "";
+
+      document.getElementById("billDate").textContent = datePart || "—";
+      document.getElementById("billTime").textContent = timePart || "—";
+      document.getElementById("billNo").textContent = bill?.bill_no || "—";
+      document.getElementById("payMethod").textContent = bill?.payment_method || "—";
+
+      document.getElementById("itemCount").textContent = String(items.length);
+      const tbody = document.getElementById("items");
+      tbody.innerHTML = items.map((it) => {
+        const name = it.name_snapshot ?? it.name ?? "";
+        const cat = categoryLabel(it.category);
+        const size = it.size ? String(it.size) : "";
+        const sub = [cat, size].filter(Boolean).join(" • ");
+        const qty = Number(it.qty || 0);
+        const rate = Number(it.unit_price || 0);
+        const amt = Number(it.line_total ?? (qty * rate));
+        return `
+          <tr>
+            <td>
+              <div>${escapeHtml(name)}</div>
+              ${sub ? `<span class="item-sub">${escapeHtml(sub)}</span>` : ""}
+            </td>
+            <td class="r">${qty.toFixed(2)}</td>
+            <td class="r">${money(rate)}</td>
+            <td class="r">${money(amt)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("grand").textContent = money(bill?.total || 0);
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>\"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+      }
+
+      document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+      if (autoPrint) {
+        setTimeout(() => window.print(), 250);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "sr-groups-liquor-bar-management-system",
+  "private": true,
+  "scripts": {
+    "dev": "python3 python_server.py",
+    "start": "python3 python_server.py",
+    "ai:backend": "cd apps/chatbot && npm run dev",
+    "ai:forecasting": "cd apps/forecasting && uvicorn app.main:app --reload --port 5001",
+    "ai:docker": "docker compose up --build"
+  }
+}
