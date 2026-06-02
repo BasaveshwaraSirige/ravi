@@ -92,7 +92,8 @@
             body: JSON.stringify({ username, password })
           });
           const shopId = res?.user?.shopId;
-          if (Number.isFinite(Number(shopId))) window.location.href = `/shop.html?shopId=${encodeURIComponent(shopId)}`;
+          const numericShopId = Number(shopId);
+          if (Number.isFinite(numericShopId) && numericShopId > 0) window.location.href = `/shop.html?shopId=${encodeURIComponent(numericShopId)}`;
           else window.location.href = "/dashboard.html";
         } catch (err) {
           toast("Login failed", err.message || "Please check credentials");

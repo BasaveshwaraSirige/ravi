@@ -537,12 +537,19 @@
 	      const panes = $$("[data-pane]");
 	
 		      function activateTab(name) {
-		        const n = String(name || "").trim();
+		        const n = String(name || "").replace(/^#/, "").trim() || "billing";
+            if (!panes.some((p) => p.dataset.pane === n)) return false;
 		        $$(".tab", tabsEl).forEach((t) => t.classList.toggle("active", t.dataset.tab === n));
 		        panes.forEach((p) => (p.style.display = p.dataset.pane === n ? "" : "none"));
             history.replaceState(null, "", `#${encodeURIComponent(n)}`);
 		        if (n === "billing") document.getElementById("searchInput")?.focus();
+            return true;
 		      }
+
+        function activateHashTab() {
+          const tabName = decodeURIComponent(location.hash.replace(/^#/, ""));
+          if (tabName) activateTab(tabName);
+        }
 	
 	      tabsEl.addEventListener("click", (e) => {
 	        const tab = e.target.closest(".tab");
@@ -551,10 +558,7 @@
 	      });
 	
 	      document.getElementById("navEmployees")?.addEventListener("click", () => activateTab("employees"));
-        const initialTab = decodeURIComponent(location.hash.replace(/^#/, ""));
-        if (initialTab && document.querySelector(`[data-pane="${CSS.escape(initialTab)}"]`)) {
-          activateTab(initialTab);
-        }
+        window.addEventListener("hashchange", activateHashTab);
 
 	      const BUTTON_SHORTCUTS = [
 	        ["navEmployees", "F1"],
@@ -2193,6 +2197,7 @@
       await loadEmployees();
       await loadExpenses();
       await loadReports();
+      activateHashTab();
     </script>
   </body>
 </html>
