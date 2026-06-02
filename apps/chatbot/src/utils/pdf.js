@@ -4,7 +4,7 @@ import { query, queryOne } from "../db.js";
 export async function streamChatPdf(res, sessionId, user) {
   const session = await queryOne(
     "SELECT id, title FROM chat_sessions WHERE id = $1 AND user_id = $2",
-    [sessionId, user.id]
+    [sessionId, user.chatUserId ?? user.id]
   );
   if (!session) {
     res.status(404).json({ ok: false, error: { message: "Chat session not found" } });

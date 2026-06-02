@@ -105,6 +105,45 @@ def b64url_decode(value: str) -> bytes:
     return base64.urlsafe_b64decode(value + "=" * ((4 - len(value) % 4) % 4))
 
 
+JWT_SECRET_DEFAULT = "dev-only-change-this-secret"
+
+
+def jwt_secret() -> str:
+    return env("JWT_SECRET", JWT_SECRET_DEFAULT)
+
+
+def jwt_sign(payload: dict[str, Any]) -> str:
+    header = {"alg": "HS256", "typ": "JWT"}
+    signing_input = ".".join(
+        [
+            b64url(json.dumps(header, separators=(",", ":")).encode("utf-8")),
+            b64url(json.dumps(payload, separators=(",", ":")).encode("utf-8")),
+        ]
+    )
+    signature = hmac.new(jwt_secret().encode("utf-8"), signing_input.encode("ascii"), hashlib.sha256).digest()
+    return f"{signing_input}.{b64url(signature)}"
+
+
+def jwt_verify(token: str) -> dict[str, Any] | None:
+    parts = str(token or "").split(".")
+    if len(parts) != 3:
+        return None
+    signing_input = ".".join(parts[:2])
+    expected = b64url(
+        hmac.new(jwt_secret().encode("utf-8"), signing_input.encode("ascii"), hashlib.sha256).digest()
+    )
+    if not hmac.compare_digest(expected, parts[2]):
+        return None
+    try:
+        payload = json.loads(b64url_decode(parts[1]).decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
+        return None
+    exp = as_number(payload.get("exp"))
+    if exp and datetime.utcnow().timestamp() >= exp:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
 PBKDF2_PREFIX = "pbkdf2_sha256"
 PBKDF2_ITERATIONS = 260_000
 
@@ -919,6 +958,374 @@ def api_me(state: AppState, handler: BaseHTTPRequestHandler, url, params):
 def api_ai_chat(state: AppState, handler: BaseHTTPRequestHandler, url, params):
     state.require_auth(handler)
     raise ApiError(501, "Local AI moved", "Use the self-hosted Node/Ollama service.")
+
+
+@route("GET", "/api/ai/token")
+def api_ai_token(state: AppState, handler: BaseHTTPRequestHandler, url, params):
+    user = state.require_auth(handler)
+    ttl_minutes = max(5, min(env_int("AI_JWT_TTL_MINUTES", 60), 24 * 60))
+    now = datetime.utcnow()
+    expires_at = now + timedelta(minutes=ttl_minutes)
+    token = jwt_sign(
+        {
+            "sub": str(user["id"]),
+            "username": user["username"],
+            "role": user["role"],
+            "shopId": user.get("shopId"),
+            "source": "sr-groups-python-session",
+            "iat": int(now.timestamp()),
+            "exp": int(expires_at.timestamp()),
+        }
+    )
+    return json_response(
+        {
+            "ok": True,
+            "token": token,
+            "expiresAt": expires_at.isoformat(timespec="seconds") + "Z",
+            "aiBaseUrl": env("LOCAL_AI_BASE_URL", "http://localhost:4000"),
+            "model": env("OLLAMA_MODEL", "qwen3"),
+        }
+    )
+
+
+def bearer_token(handler: BaseHTTPRequestHandler) -> str | None:
+    auth = str(handler.headers.get("Authorization") or "")
+    return auth[7:].strip() if auth.lower().startswith("bearer ") else None
+
+
+def require_ai_bearer_user(state: AppState, handler: BaseHTTPRequestHandler) -> dict[str, Any]:
+    payload = jwt_verify(bearer_token(handler) or "")
+    if payload is None:
+        raise ApiError(401, "Invalid AI token")
+    user_id = int(as_number(payload.get("sub")))
+    if user_id <= 0:
+        raise ApiError(401, "Invalid AI token")
+    with state.db.lock:
+        row = state.db.conn.execute(
+            "SELECT id, username, role, shop_id FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+    if row is None:
+        raise ApiError(401, "AI user no longer exists")
+    return {"id": row["id"], "username": row["username"], "role": row["role"], "shopId": row["shop_id"]}
+
+
+def ai_requested_shop_id(body: dict[str, Any]) -> int | None:
+    raw = body.get("shopId")
+    if raw in (None, ""):
+        return None
+    parsed = int(as_number(raw))
+    return parsed if parsed > 0 else None
+
+
+def ai_shop_scope(user: dict[str, Any], alias: str, requested_shop_id: int | None = None) -> tuple[str, list[Any], dict[str, Any]]:
+    if user.get("role") != "OWNER":
+        if requested_shop_id is not None and requested_shop_id != int(user.get("shopId") or 0):
+            raise ApiError(403, "Forbidden")
+        shop_id = int(user.get("shopId") or 0)
+        if shop_id <= 0:
+            raise ApiError(403, "Staff user requires shop scope")
+    else:
+        shop_id = requested_shop_id
+    if shop_id:
+        return f" AND {alias}.shop_id = ?", [shop_id], {"shopId": shop_id, "scope": "single-shop"}
+    return "", [], {"shopId": None, "scope": "all-shops"}
+
+
+def ai_date_range(question: str, default_period: str = "today") -> tuple[str, str, str]:
+    text = str(question or "").lower()
+    exact = re.search(r"\b(20\d{2}-\d{2}-\d{2})\b", text)
+    if exact:
+        return exact.group(1), exact.group(1), "date"
+    today = datetime.now().date()
+    if "month" in text or default_period == "month":
+        return today.replace(day=1).isoformat(), today.isoformat(), "month-to-date"
+    if "week" in text or default_period == "week":
+        return (today - timedelta(days=6)).isoformat(), today.isoformat(), "last-7-days"
+    return today.isoformat(), today.isoformat(), "today"
+
+
+def ai_sales_summary_tool(state: AppState, user: dict[str, Any], question: str, requested_shop_id: int | None) -> dict[str, Any]:
+    date_from, date_to, period = ai_date_range(question, "today")
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "b", requested_shop_id)
+        gst_expr = "COALESCE(SUM(b.gst_total), 0)" if state.db.has_column("bills", "gst_total") else "0"
+        row = state.db.conn.execute(
+            f"""
+            SELECT COUNT(*) AS bill_count,
+                   COALESCE(SUM(b.subtotal), 0) AS subtotal,
+                   {gst_expr} AS gst_total,
+                   COALESCE(SUM(b.total), 0) AS total
+            FROM bills b
+            WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+            """,
+            (date_from, date_to, *shop_args),
+        ).fetchone()
+        by_payment = state.db.conn.execute(
+            f"""
+            SELECT b.payment_method, COUNT(*) AS bill_count, COALESCE(SUM(b.total), 0) AS total
+            FROM bills b
+            WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+            GROUP BY b.payment_method
+            ORDER BY total DESC
+            """,
+            (date_from, date_to, *shop_args),
+        ).fetchall()
+        shop_id = scope.get("shopId")
+        by_shop_sql = " AND s.id = ?" if shop_id else ""
+        by_shop_args = [shop_id] if shop_id else []
+        by_shop = state.db.conn.execute(
+            f"""
+            SELECT s.id AS shop_id, s.name AS shop_name, COUNT(b.id) AS bill_count,
+                   COALESCE(SUM(b.total), 0) AS total
+            FROM shops s
+            LEFT JOIN bills b ON b.shop_id = s.id AND date(b.created_at) BETWEEN ? AND ?
+            WHERE 1=1 {by_shop_sql}
+            GROUP BY s.id, s.name
+            ORDER BY s.id ASC
+            """,
+            (date_from, date_to, *by_shop_args),
+        ).fetchall()
+    return {
+        "name": "salesSummary",
+        "period": period,
+        "from": date_from,
+        "to": date_to,
+        "scope": scope,
+        "summary": {
+            "billCount": int(row["bill_count"] if row else 0),
+            "subtotal": money(row["subtotal"] if row else 0),
+            "gstTotal": money(row["gst_total"] if row else 0),
+            "total": money(row["total"] if row else 0),
+        },
+        "byPaymentMethod": rows_to_dicts(by_payment),
+        "byShop": rows_to_dicts(by_shop),
+    }
+
+
+def ai_inventory_status_tool(state: AppState, user: dict[str, Any], requested_shop_id: int | None) -> dict[str, Any]:
+    non_stock = "(p.size IS NULL AND p.current_qty = 0 AND p.min_qty = 0 AND p.barcode IS NULL)"
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "p", requested_shop_id)
+        row = state.db.conn.execute(
+            f"""
+            SELECT COUNT(*) AS product_count,
+                   COALESCE(SUM(p.current_qty), 0) AS total_qty,
+                   COALESCE(SUM(p.current_qty * p.sale_price), 0) AS sale_value,
+                   COALESCE(SUM(CASE WHEN p.current_qty < p.min_qty THEN 1 ELSE 0 END), 0) AS low_stock_count,
+                   COALESCE(SUM(CASE WHEN p.current_qty <= 0 THEN 1 ELSE 0 END), 0) AS out_of_stock_count
+            FROM products p
+            WHERE NOT {non_stock} {shop_sql}
+            """,
+            tuple(shop_args),
+        ).fetchone()
+        by_category = state.db.conn.execute(
+            f"""
+            SELECT COALESCE(p.category, 'OTHERS') AS category,
+                   COUNT(*) AS product_count,
+                   COALESCE(SUM(p.current_qty), 0) AS total_qty,
+                   COALESCE(SUM(p.current_qty * p.sale_price), 0) AS sale_value,
+                   COALESCE(SUM(CASE WHEN p.current_qty < p.min_qty THEN 1 ELSE 0 END), 0) AS low_stock_count
+            FROM products p
+            WHERE NOT {non_stock} {shop_sql}
+            GROUP BY COALESCE(p.category, 'OTHERS')
+            ORDER BY sale_value DESC
+            LIMIT 20
+            """,
+            tuple(shop_args),
+        ).fetchall()
+    return {
+        "name": "inventoryStatus",
+        "scope": scope,
+        "summary": {
+            "productCount": int(row["product_count"] if row else 0),
+            "totalQty": money(row["total_qty"] if row else 0),
+            "saleValue": money(row["sale_value"] if row else 0),
+            "lowStockCount": int(row["low_stock_count"] if row else 0),
+            "outOfStockCount": int(row["out_of_stock_count"] if row else 0),
+        },
+        "byCategory": rows_to_dicts(by_category),
+    }
+
+
+def ai_low_stock_tool(state: AppState, user: dict[str, Any], requested_shop_id: int | None) -> dict[str, Any]:
+    non_stock = "(p.size IS NULL AND p.current_qty = 0 AND p.min_qty = 0 AND p.barcode IS NULL)"
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "p", requested_shop_id)
+        rows = state.db.conn.execute(
+            f"""
+            SELECT p.id, p.name, p.category, p.size, p.current_qty, p.min_qty,
+                   ROUND(p.min_qty - p.current_qty, 2) AS shortage,
+                   p.sale_price, s.name AS shop_name
+            FROM products p
+            JOIN shops s ON s.id = p.shop_id
+            WHERE NOT {non_stock} AND p.current_qty < p.min_qty {shop_sql}
+            ORDER BY shortage DESC, p.name COLLATE NOCASE ASC
+            LIMIT 25
+            """,
+            tuple(shop_args),
+        ).fetchall()
+    return {"name": "lowStockProducts", "scope": scope, "rows": rows_to_dicts(rows)}
+
+
+def ai_tax_summary_tool(state: AppState, user: dict[str, Any], question: str, requested_shop_id: int | None) -> dict[str, Any]:
+    date_from, date_to, period = ai_date_range(question, "month")
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "b", requested_shop_id)
+        has_bill_gst = state.db.has_column("bills", "gst_total")
+        has_item_gst = state.db.has_column("bill_items", "gst_amount")
+        gst_expr = "COALESCE(SUM(b.gst_total), 0)" if has_bill_gst else "0"
+        row = state.db.conn.execute(
+            f"""
+            SELECT COUNT(*) AS bill_count,
+                   COALESCE(SUM(b.subtotal), 0) AS taxable_total,
+                   {gst_expr} AS gst_total,
+                   COALESCE(SUM(b.total), 0) AS grand_total
+            FROM bills b
+            WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+            """,
+            (date_from, date_to, *shop_args),
+        ).fetchone()
+        by_rate: list[sqlite3.Row] = []
+        if has_item_gst and state.db.has_column("bill_items", "gst_rate"):
+            by_rate = state.db.conn.execute(
+                f"""
+                SELECT bi.gst_rate,
+                       COALESCE(SUM(bi.taxable_amount), 0) AS taxable_total,
+                       COALESCE(SUM(bi.gst_amount), 0) AS gst_total,
+                       COALESCE(SUM(bi.line_total), 0) AS grand_total
+                FROM bill_items bi
+                JOIN bills b ON b.id = bi.bill_id
+                WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+                GROUP BY bi.gst_rate
+                ORDER BY bi.gst_rate ASC
+                """,
+                (date_from, date_to, *shop_args),
+            ).fetchall()
+    return {
+        "name": "gstTaxSummary",
+        "period": period,
+        "from": date_from,
+        "to": date_to,
+        "scope": scope,
+        "taxAvailable": bool(has_bill_gst or has_item_gst),
+        "summary": {
+            "billCount": int(row["bill_count"] if row else 0),
+            "taxableTotal": money(row["taxable_total"] if row else 0),
+            "gstTotal": money(row["gst_total"] if row else 0),
+            "grandTotal": money(row["grand_total"] if row else 0),
+        },
+        "byGstRate": rows_to_dicts(by_rate),
+    }
+
+
+def ai_top_selling_tool(state: AppState, user: dict[str, Any], question: str, requested_shop_id: int | None) -> dict[str, Any]:
+    date_from, date_to, period = ai_date_range(question, "month")
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "b", requested_shop_id)
+        rows = state.db.conn.execute(
+            f"""
+            SELECT bi.product_id, bi.name_snapshot AS product_name,
+                   COALESCE(p.category, 'OTHERS') AS category,
+                   p.size,
+                   COALESCE(SUM(bi.qty), 0) AS qty_sold,
+                   COALESCE(SUM(bi.line_total), 0) AS revenue,
+                   COUNT(DISTINCT b.id) AS bill_count,
+                   s.name AS shop_name
+            FROM bill_items bi
+            JOIN bills b ON b.id = bi.bill_id
+            JOIN shops s ON s.id = b.shop_id
+            LEFT JOIN products p ON p.id = bi.product_id
+            WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+            GROUP BY bi.product_id, bi.name_snapshot, p.category, p.size, s.name
+            ORDER BY qty_sold DESC, revenue DESC
+            LIMIT 20
+            """,
+            (date_from, date_to, *shop_args),
+        ).fetchall()
+    return {
+        "name": "topSellingProducts",
+        "period": period,
+        "from": date_from,
+        "to": date_to,
+        "scope": scope,
+        "rows": rows_to_dicts(rows),
+    }
+
+
+def ai_recent_bills_tool(state: AppState, user: dict[str, Any], question: str, requested_shop_id: int | None) -> dict[str, Any]:
+    date_from, date_to, period = ai_date_range(question, "today")
+    with state.db.lock:
+        shop_sql, shop_args, scope = ai_shop_scope(user, "b", requested_shop_id)
+        rows = state.db.conn.execute(
+            f"""
+            SELECT b.id, b.bill_no, b.payment_method, b.subtotal, b.total, b.created_at, s.name AS shop_name
+            FROM bills b
+            JOIN shops s ON s.id = b.shop_id
+            WHERE date(b.created_at) BETWEEN ? AND ? {shop_sql}
+            ORDER BY b.created_at DESC
+            LIMIT 12
+            """,
+            (date_from, date_to, *shop_args),
+        ).fetchall()
+    return {"name": "recentBills", "period": period, "from": date_from, "to": date_to, "scope": scope, "rows": rows_to_dicts(rows)}
+
+
+def ai_infer_tool_names(question: str) -> list[str]:
+    text = str(question or "").lower()
+    requests: list[str] = []
+    if re.search(r"\b(gst|tax|taxes)\b", text):
+        requests.append("tax")
+    if re.search(r"\b(top|best|highest|fast[- ]?moving).*\b(sell|sold|product|item)", text) or "top selling" in text:
+        requests.append("top")
+    if re.search(r"\b(low stock|minimum|min qty|shortage|reorder|out of stock)\b", text):
+        requests.append("lowStock")
+    if re.search(r"\b(inventory|stock status|stock summary|stock report|stock)\b", text):
+        requests.append("inventory")
+    if re.search(r"\b(sales|sale|revenue|collection|turnover|business)\b", text) or "today" in text or "month" in text:
+        requests.append("sales")
+    if re.search(r"\b(bill|invoice)\b", text):
+        requests.append("recentBills")
+    if not requests:
+        requests = ["sales", "inventory", "lowStock"]
+    deduped: list[str] = []
+    for name in requests:
+        if name not in deduped:
+            deduped.append(name)
+    return deduped[:5]
+
+
+@route("POST", "/api/internal/ai/billing-tools")
+def api_internal_ai_billing_tools(state: AppState, handler: BaseHTTPRequestHandler, url, params):
+    user = require_ai_bearer_user(state, handler)
+    body = parse_json_body(handler) or {}
+    question = str(body.get("question") or body.get("message") or "").strip()
+    requested_shop_id = ai_requested_shop_id(body if isinstance(body, dict) else {})
+    results: list[dict[str, Any]] = []
+    for name in ai_infer_tool_names(question):
+        try:
+            if name == "sales":
+                results.append(ai_sales_summary_tool(state, user, question, requested_shop_id))
+            elif name == "inventory":
+                results.append(ai_inventory_status_tool(state, user, requested_shop_id))
+            elif name == "lowStock":
+                results.append(ai_low_stock_tool(state, user, requested_shop_id))
+            elif name == "tax":
+                results.append(ai_tax_summary_tool(state, user, question, requested_shop_id))
+            elif name == "top":
+                results.append(ai_top_selling_tool(state, user, question, requested_shop_id))
+            elif name == "recentBills":
+                results.append(ai_recent_bills_tool(state, user, question, requested_shop_id))
+        except ApiError:
+            raise
+        except Exception as exc:
+            results.append({"name": name, "error": str(exc)})
+    return json_response(
+        {
+            "ok": True,
+            "generatedAt": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "results": results,
+        }
+    )
 
 
 @route("GET", "/api/shops")
@@ -2086,7 +2493,7 @@ def main() -> int:
     state = AppState(db)
     schedule_daily_reports(state)
 
-    port = env_int("PORT", 3000)
+    port = env_int("PORT", 8000)
     SRGroupsHandler.state = state
     httpd = ThreadingHTTPServer(("0.0.0.0", port), SRGroupsHandler)
     print(f"SR Groups Python server listening on http://localhost:{port}")

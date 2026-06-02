@@ -26,7 +26,9 @@ export function requireJwt(req, res, next) {
       id: Number(decoded.sub),
       username: decoded.username,
       role: decoded.role,
-      shopId: decoded.shopId ?? null
+      shopId: decoded.shopId ?? null,
+      source: decoded.source || "local-ai",
+      token
     };
     return next();
   } catch {

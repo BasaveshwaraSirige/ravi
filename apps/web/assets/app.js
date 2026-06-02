@@ -111,7 +111,7 @@ const DEFAULT_SETTINGS = {
   font: "Inter",
   density: "comfortable",
   aiEnabled: true,
-  localModel: "llama3",
+  localModel: "qwen3",
   aiResponseLength: "balanced",
   forecastHorizon: "30",
   confidence: "90",
@@ -221,7 +221,7 @@ function buildSettingsModal(settings) {
               <h3>AI Settings</h3>
               <div class="settings-grid">
                 ${settingsField("AI assistant", `<select name="aiEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select>`)}
-                ${settingsField("Local model", `<select name="localModel"><option value="llama3">Llama 3</option><option value="qwen">Qwen</option><option value="mistral">Mistral</option><option value="gemma">Gemma</option></select>`)}
+                ${settingsField("Local model", `<select name="localModel"><option value="qwen3">Qwen3</option><option value="llama3">Llama 3</option><option value="qwen">Qwen</option><option value="mistral">Mistral</option><option value="gemma">Gemma</option></select>`)}
                 ${settingsField("Response length", `<select name="aiResponseLength"><option value="short">Short</option><option value="balanced">Balanced</option><option value="detailed">Detailed</option></select>`)}
                 ${settingsField("Forecast horizon", `<select name="forecastHorizon"><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select>`)}
                 ${settingsField("Prediction confidence", `<input name="confidence" type="range" min="70" max="99" value="${settings.confidence}" />`)}
@@ -531,6 +531,7 @@ function buildAiChatWidget() {
           </div>
           <div class="row" style="gap:6px">
             <select id="aiModelSelect" title="Local model">
+              <option value="qwen3">Qwen3</option>
               <option value="llama3">Llama 3</option>
               <option value="qwen">Qwen</option>
               <option value="mistral">Mistral</option>
@@ -579,13 +580,25 @@ function appendAiMessage(role, content) {
 }
 
 async function getLocalAiToken() {
-  return sessionStorage.getItem("sr_local_ai_token") || localStorage.getItem("srLocalAiToken") || "";
+  const existing = sessionStorage.getItem("sr_local_ai_token") || localStorage.getItem("srLocalAiToken") || "";
+  if (existing) return existing;
+  const res = await fetch("/api/ai/token", { credentials: "include" });
+  if (!res.ok) return "";
+  const data = await res.json().catch(() => null);
+  if (!data?.token) return "";
+  sessionStorage.setItem("sr_local_ai_token", data.token);
+  if (data.aiBaseUrl) sessionStorage.setItem("sr_local_ai_base_url", data.aiBaseUrl);
+  return data.token;
+}
+
+function getLocalAiBaseUrl() {
+  return (sessionStorage.getItem("sr_local_ai_base_url") || localStorage.getItem("srLocalAiBaseUrl") || "http://localhost:4000").replace(/\/+$/, "");
 }
 
 async function streamLocalAi(message, model, onToken, onMeta) {
   const token = await getLocalAiToken();
-  if (!token) throw new Error("Local AI login required. Open http://localhost:4000/forecast-dashboard.html once and login, or connect JWT auth.");
-  const res = await fetch("http://localhost:4000/api/chat", {
+  if (!token) throw new Error("Local AI token unavailable. Sign in to the main app and start the local AI backend on port 4000.");
+  const res = await fetch(`${getLocalAiBaseUrl()}/api/chat`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
     body: JSON.stringify({ message, model })

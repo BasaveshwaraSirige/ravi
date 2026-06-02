@@ -5,7 +5,7 @@ import { config } from "../config.js";
 
 const router = Router();
 
-router.get("/", requireJwt, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const installed = await listOllamaModels();
     const allowed = installed.filter((name) =>

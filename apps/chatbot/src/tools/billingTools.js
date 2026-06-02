@@ -212,7 +212,31 @@ export function inferToolRequests(question) {
   return requests.slice(0, 4);
 }
 
-export async function runBillingTools(user, question) {
+async function runLiveBillingTools(question, authToken) {
+  if (!config.billingApiUrl || !authToken) return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.billingApiTimeoutMs);
+  try {
+    const response = await fetch(`${config.billingApiUrl}/api/internal/ai/billing-tools`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({ question })
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(data?.error?.message || `Billing bridge failed (${response.status})`);
+    }
+    return Array.isArray(data?.results) ? data.results : [];
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function runPostgresBillingTools(user, question) {
   const requests = inferToolRequests(question);
   const results = [];
   for (const request of requests) {
@@ -228,4 +252,15 @@ export async function runBillingTools(user, question) {
     }
   }
   return results;
+}
+
+export async function runBillingTools(user, question, authToken = "") {
+  try {
+    const liveResults = await runLiveBillingTools(question, authToken);
+    if (liveResults) return liveResults;
+  } catch (error) {
+    const fallback = await runPostgresBillingTools(user, question);
+    return [{ name: "liveBillingBridge", error: error.message }, ...fallback];
+  }
+  return runPostgresBillingTools(user, question);
 }

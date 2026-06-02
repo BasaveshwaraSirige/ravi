@@ -21,11 +21,55 @@ function modelAllowed(model) {
   return config.allowedModels.some((prefix) => lower.startsWith(prefix)) ? candidate : config.ollamaModel;
 }
 
+function externalChatId(value) {
+  const id = Math.abs(Number(value) || 0);
+  return id > 0 ? -id : null;
+}
+
+async function ensureChatPrincipal(user) {
+  if (user.source !== "sr-groups-python-session") {
+    return { ...user, chatUserId: user.id, chatShopId: user.shopId };
+  }
+
+  const chatUserId = externalChatId(user.id);
+  if (chatUserId == null) {
+    const error = new Error("Invalid chat user");
+    error.status = 401;
+    throw error;
+  }
+  const chatShopId = user.shopId == null ? null : externalChatId(user.shopId);
+  const shadowUsername = `python_${Math.abs(chatUserId)}_${sanitizeText(user.username, 36) || "user"}`;
+
+  await withTransaction(async (client) => {
+    if (chatShopId != null) {
+      await client.query(
+        `INSERT INTO shops (id, name, address)
+         VALUES ($1, $2, 'Mirrored from live billing app')
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`,
+        [chatShopId, `Live billing shop ${user.shopId}`]
+      );
+    }
+    await client.query(
+      `INSERT INTO users (id, username, password_hash, role, shop_id)
+       VALUES ($1, $2, 'external-python-session', $3, $4)
+       ON CONFLICT (id) DO UPDATE
+       SET username = EXCLUDED.username,
+           role = EXCLUDED.role,
+           shop_id = EXCLUDED.shop_id`,
+      [chatUserId, shadowUsername, user.role, chatShopId]
+    );
+  });
+
+  return { ...user, chatUserId, chatShopId };
+}
+
 async function ensureSession(user, sessionId, titleSeed) {
+  const chatUserId = user.chatUserId ?? user.id;
+  const chatShopId = user.chatShopId ?? user.shopId;
   if (sessionId) {
     const existing = await queryOne(
       "SELECT id, title FROM chat_sessions WHERE id = $1 AND user_id = $2",
-      [sessionId, user.id]
+      [sessionId, chatUserId]
     );
     if (!existing) {
       const error = new Error("Chat session not found");
@@ -40,7 +84,7 @@ async function ensureSession(user, sessionId, titleSeed) {
     `INSERT INTO chat_sessions (id, user_id, shop_id, title)
      VALUES ($1, $2, $3, $4)
      RETURNING id, title`,
-    [randomUUID(), user.id, user.shopId, title]
+    [randomUUID(), chatUserId, chatShopId, title]
   );
 }
 
@@ -59,7 +103,8 @@ function buildSystemMessage(user, toolResults, injectionDetected) {
   const toolContext = JSON.stringify(toolResults, null, 2);
   return [
     "You are SR Groups Local Business Assistant running fully on the owner's server.",
-    "Use only the provided secure tool results for invoices, customers, payments, products, and reports.",
+    "Use only the provided secure tool results for sales, bills, payments, inventory, low stock, GST, tax, top products, customers, and reports.",
+    "For GST or tax questions, use gstTaxSummary. If the returned GST amount is zero, state that the current billing data has zero GST recorded for the period.",
     "Never ask for or produce raw SQL. Never claim access to data not present in tool results.",
     "Respect user data isolation: answer only for the authenticated user's shop scope.",
     "If tool results are empty, say no matching local data was found.",
@@ -73,13 +118,14 @@ function buildSystemMessage(user, toolResults, injectionDetected) {
 
 router.get("/sessions", requireJwt, async (req, res, next) => {
   try {
+    const principal = await ensureChatPrincipal(req.user);
     const rows = await query(
       `SELECT id, title, created_at, updated_at
        FROM chat_sessions
        WHERE user_id = $1
        ORDER BY updated_at DESC
        LIMIT 50`,
-      [req.user.id]
+      [principal.chatUserId]
     );
     res.json({ ok: true, sessions: rows });
   } catch (error) {
@@ -89,9 +135,10 @@ router.get("/sessions", requireJwt, async (req, res, next) => {
 
 router.get("/sessions/:sessionId", requireJwt, async (req, res, next) => {
   try {
+    const principal = await ensureChatPrincipal(req.user);
     const session = await queryOne(
       "SELECT id, title, created_at, updated_at FROM chat_sessions WHERE id = $1 AND user_id = $2",
-      [req.params.sessionId, req.user.id]
+      [req.params.sessionId, principal.chatUserId]
     );
     if (!session) return res.status(404).json({ ok: false, error: { message: "Chat session not found" } });
     const messages = await query(
@@ -109,7 +156,8 @@ router.get("/sessions/:sessionId", requireJwt, async (req, res, next) => {
 
 router.get("/sessions/:sessionId/export", requireJwt, async (req, res, next) => {
   try {
-    await streamChatPdf(res, req.params.sessionId, req.user);
+    const principal = await ensureChatPrincipal(req.user);
+    await streamChatPdf(res, req.params.sessionId, principal);
   } catch (error) {
     next(error);
   }
@@ -118,23 +166,24 @@ router.get("/sessions/:sessionId/export", requireJwt, async (req, res, next) => 
 router.post("/", requireJwt, chatLimiter, async (req, res, next) => {
   let session;
   try {
+    const principal = await ensureChatPrincipal(req.user);
     const parsed = chatRequestSchema.parse(req.body || {});
     const message = sanitizeText(parsed.message, 2000);
     const injectionDetected = looksLikePromptInjection(message);
     const model = modelAllowed(parsed.model);
-    session = await ensureSession(req.user, parsed.sessionId, message);
+    session = await ensureSession(principal, parsed.sessionId, message);
 
-    const toolResults = await runBillingTools(req.user, message);
+    const toolResults = await runBillingTools(req.user, message, req.user.token);
     await withTransaction(async (client) => {
       await client.query(
         `INSERT INTO chat_messages (session_id, user_id, role, content, metadata)
          VALUES ($1, $2, 'user', $3, $4::jsonb)`,
-        [session.id, req.user.id, message, safeJson({ injectionDetected })]
+        [session.id, principal.chatUserId, message, safeJson({ injectionDetected })]
       );
       await client.query(
         `INSERT INTO chat_messages (session_id, user_id, role, content, metadata)
          VALUES ($1, $2, 'tool', $3, $4::jsonb)`,
-        [session.id, req.user.id, "Secure billing tools executed.", safeJson({ toolResults })]
+        [session.id, principal.chatUserId, "Secure billing tools executed.", safeJson({ toolResults })]
       );
       await client.query("UPDATE chat_sessions SET updated_at = now() WHERE id = $1", [session.id]);
     });
@@ -167,7 +216,7 @@ router.post("/", requireJwt, chatLimiter, async (req, res, next) => {
       await client.query(
         `INSERT INTO chat_messages (session_id, user_id, role, content, metadata)
          VALUES ($1, $2, 'assistant', $3, $4::jsonb)`,
-        [session.id, req.user.id, finalText, safeJson({ model })]
+        [session.id, principal.chatUserId, finalText, safeJson({ model })]
       );
       await client.query("UPDATE chat_sessions SET updated_at = now() WHERE id = $1", [session.id]);
     });
